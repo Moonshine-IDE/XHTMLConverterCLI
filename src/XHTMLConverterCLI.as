@@ -10,6 +10,10 @@ package
     [SWF(frameRate=60, width=0, height=0, visible=false, showStatusBar=false)]
     public class XHTMLConverterCLI extends Sprite
 	{
+		private var isPublishToPrimefacesArg:Boolean;
+		private var ifPublishToPrimefacesSource:String;
+		private var ifPublishToPrimeFacesTarget:String;
+
 		public function XHTMLConverterCLI()
 		{
 			super();
@@ -21,14 +25,11 @@ package
 			NativeApplication.nativeApplication.removeEventListener(InvokeEvent.INVOKE, onInvokeEvent);
 			
 			var arg:Array = event.arguments;
-			var isPublishToPrimefacesArg:Boolean;
-			var ifPublishToPrimefacesSource:String;
-			var ifPublishToPrimeFacesTarget:String;
-			
 			if (arg.length != 0)
 			{
 				for (var i:int; i < arg.length; i++)
 				{
+					// parsing if publish-to-primefaces exists
 					if (!isPublishToPrimefacesArg && (arg[i] == "--publish-to-primefaces"))
 					{
 						// next two parameters must be supplying
@@ -48,20 +49,47 @@ package
 			else
 			{
 				// if no argument present, quit
-				stage.nativeWindow.close();
+				this.quit();
 			}
 			
 			// --publish-to-primefaces
 			if (isPublishToPrimefacesArg)
 			{
-				publishToPrimefaces(ifPublishToPrimefacesSource, ifPublishToPrimeFacesTarget);
+				initPublishRead();
 			}
 		}
 		
-		private function publishToPrimefaces(source:String, target:String):void
+		private function initPublishRead():void
 		{
-			var toFile:File = new File(target);
-			FileUtils.writeToFileAsync(toFile, "No CONTENT", onSuccessWrite, onErrorWrite);
+			var fromFile:File = new File(ifPublishToPrimefacesSource)
+			if (fromFile.exists)
+			{
+				FileUtils.readFromFileAsync(fromFile, FileUtils.DATA_FORMAT_STRING, onSuccessRead, onErrorRead);
+			}
+			else
+			{
+				quit();
+			}
+			
+			/*
+			* @local
+			*/
+			function onSuccessRead(value:Object):void
+			{
+				// TEMP
+				if (value is String) publishReadToPrimefaces(value);
+				else quit();
+			}
+			function onErrorRead(value:String):void
+			{
+				quit();
+			}
+		}
+		
+		private function publishReadToPrimefaces(value:Object):void
+		{
+			var toFile:File = new File(ifPublishToPrimeFacesTarget);
+			FileUtils.writeToFileAsync(toFile, value as String, onSuccessWrite, onErrorWrite);
 			
 			/*
 			* @local
@@ -74,12 +102,17 @@ package
 				// its argument array do not re-generates except in
 				// the first time; thus, let close it and re-open the
 				// app again
-				stage.nativeWindow.close();
+				quit();
 			}
 			function onErrorWrite(value:String):void
 			{
-				stage.nativeWindow.close();
+				quit();
 			}
+		}
+		
+		private function quit():void
+		{
+			stage.nativeWindow.close();
 		}
     }
 }

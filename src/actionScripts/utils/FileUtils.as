@@ -32,6 +32,15 @@ package actionScripts.utils
 		public static const DATA_FORMAT_BYTEARRAY:String = "dataAsByteArray";
 		
 		/**
+		 * Validate if a given file is
+		 * text file or binary
+		 */
+		public static function isBinary(fileContent:String):Boolean
+		{
+			return (/[\x00-\x08\x0E-\x1F]/.test(fileContent));
+		}
+		
+		/**
 		 * Writes to file with data
 		 * @required
 		 * destination: File (save-destination)
