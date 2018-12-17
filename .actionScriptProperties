@@ -17,9 +17,6 @@
     <application path="XHTMLConverterCLI.as">
       <airExcludes/>
     </application>
-    <application path="XHTMLConverterCLI.mxml">
-      <airExcludes/>
-    </application>
   </applications>
   <modules/>
   <workers/>
