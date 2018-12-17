@@ -137,11 +137,6 @@
 					</elseif>
 				</if>
 			</then>
-			<!-- consider a web build -->
-			<else>
-				<property name="isOSX" value="false"/>
-				<antcall target="disposeTempWindowsWeb"></antcall>
-			</else>
 		</if>
 	</target>
 
@@ -161,6 +156,61 @@
 	<!--
 	//==========================================================================
 	//
+	//  WINDOWS
+	//
+	//==========================================================================
+	-->
+	
+	<!-- Windows signed packaging initiator -->
+	<target name="signedSigningBuild" if="${Is.Signed.Build}">
+		<antcall target="CompileSWFWindowsSignedPackage"></antcall>
+	</target>
+
+	<!-- Windows packaging/signing Task -->
+	<target name="CompileSWFWindowsSignedPackage" depends="CompileSWF">
+		<echo>Signed Process Running</echo>
+		<java jar="${adt_path}" fork="true" failonerror="true">
+			<arg line="-package" />
+			<arg line="-storetype pkcs12" />
+			<arg line="-keystore '${debug_dir}/${certSelfSigned}'" />
+	   		<arg line="-storepass '${certSelfSignedPassword}'" />
+			<arg line="-tsa 'http://timestamp.comodoca.com/rfc3161'" />
+	   		<arg line="-target native"/>
+	   		<arg line="-storetype pkcs12" />
+	   		<arg line="-keystore '${certSignedWindowsBinary}'" />
+	   		<arg line="-storepass '${certSignedWindowsBinaryPassword}'" />
+	   		<arg line="${desktopBinaryFilename}" />
+	   		<arg line="'${desktopApplicationDescriptor}'" />
+	   		<arg line="'${swfFilename}'" />
+	   		<!-- Add folders to be bundled in the AIR file here -->
+		</java>
+	 </target>
+	
+	<!-- Windows self-signed packaging initiator -->
+	<target name="normalSigningBuild" unless="${Is.Signed.Build}">
+		<antcall target="CompileSWFWindowsSelfSignedPackage"></antcall>
+	</target>
+
+	 <!-- Windows packaging/signing Task -->
+	<target name="CompileSWFWindowsSelfSignedPackage" depends="CompileSWF">
+		<echo>Self-signed Process Running</echo>
+		<java jar="${adt_path}" fork="true" failonerror="true">
+			<arg line="-package" />
+			<arg line="-storetype pkcs12" />
+			<arg line="-keystore '${debug_dir}/${certSelfSigned}'" />
+	   		<arg line="-storepass '${certSelfSignedPassword}'" />
+			<arg line="-tsa 'http://timestamp.comodoca.com/rfc3161'" />
+	   		<arg line="-target native"/>
+	   		<arg line="${desktopBinaryFilename}" />
+	   		<arg line="'${desktopApplicationDescriptor}'" />
+	   		<arg line="'${swfFilename}'" />
+	   		<!-- Add folders to be bundled in the AIR file here -->
+		</java>
+	 </target>
+	
+	<!--
+	//==========================================================================
+	//
 	//  MACOS
 	//
 	//==========================================================================
@@ -168,7 +218,7 @@
 	
 	<!-- Compile .app to next use in .pkg building -->
 	<!--target name="compile app project" depends="compile dmg project"-->
-	<target name="compile app project" depends="CompileSWFOSX">
+	<target name="compile app project" depends="CompileSWF">
 		<java jar="${adt_path}" fork="true" failonerror="true">
 			<arg line="-package" />
 			<arg line="-storetype pkcs12" />
@@ -345,8 +395,17 @@
 
 		<!-- Check if the self-signed certificate exists -->
 		<copy file="${certSelfSigned}" todir="${debug_dir}" overwrite="true"/>
-		<property name="desktopBinaryFilename" value="${deploy_dir}/${installerName}.app"/>
-		<copy file="entitlement.plist" todir="${debug_dir}" overwrite="true"/>
+		
+		<if>
+			<os family="unix"/>
+			<then>
+				<property name="desktopBinaryFilename" value="${deploy_dir}/${installerName}.app"/>
+				<copy file="entitlement.plist" todir="${debug_dir}" overwrite="true"/>
+			</then>
+			<else>
+				<property name="desktopBinaryFilename" value="${deploy_dir}/${installerName}.exe"/>
+			</else>
+		</if>
 		
 		<replaceregexp file="${desktopApplicationDescriptor}" match="filenameToBeReplacedByANT" replace="${executableName}" />
 		<replaceregexp file="${desktopApplicationDescriptor}" match="nameToBeReplacedByANT" replace="${applicationName} ${BuildVersion}" encoding="utf-8" />
@@ -356,7 +415,7 @@
 	</target>
 	
 	<!-- Compile SWF to build directory for desktop packaging -->
-	<target name="CompileSWFOSX" depends="modifyDescriptor" if="${isOSX}">
+	<target name="CompileSWF" depends="modifyDescriptor">
 		<mxmlc file="${desktopMainSource}" 
 			   output="${swfFilename}" 
 			   swf-version="39" 
@@ -375,13 +434,21 @@
 	</target>
 	
 	<!-- Deletes temporary files for Windows -->
-	<target name="disposeTempUNIX" depends="buildAppStorePKG">
+	<target name="disposeTempWindows" depends="normalSigningBuild,signedSigningBuild">
 		<if>
 			<equals arg1="${keepDebugFiles}" arg2="false"/>
 			<then>
 				<delete dir="${debug_dir}" />
-				<delete dir="elements" />
-				<delete dir="tourDeFlex" />
+			</then>
+		</if>
+	</target>
+	
+	<!-- Deletes temporary files for macOS -->
+	<target name="disposeTempUNIX" depends="compile app project">
+		<if>
+			<equals arg1="${keepDebugFiles}" arg2="false"/>
+			<then>
+				<delete dir="${debug_dir}" />
 			</then>
 		</if>
 	</target>

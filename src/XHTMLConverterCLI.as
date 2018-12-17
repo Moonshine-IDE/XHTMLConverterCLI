@@ -45,6 +45,11 @@ package
 					// at here ...
 				}
 			}
+			else
+			{
+				// if no argument present, quit
+				stage.nativeWindow.close();
+			}
 			
 			// --publish-to-primefaces
 			if (isPublishToPrimefacesArg)
