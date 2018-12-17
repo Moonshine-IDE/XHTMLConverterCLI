@@ -18,10 +18,7 @@ Sending command to convert nsf-xml to xhtml
 ```
 open -a '\Applications\XHTMLConverterCLI.app' --args --publish-to-primefaces 'path-to-source-nsf-file.xml' 'path-to-destination-nsf-file.xhtml'
 ```
-
-#### Notes
-On Unix, following usage is not suggested however this will work - once:
+Another option on Unix is as follows, this shall work as long as we keep the executable non-sandbox:
 ```
 '\Applications\XHTMLConverterCLI.app\Contents\MacOS\XHTMLConverterCLI' --publish-to-primefaces 'path-to-source-nsf-file.xml' 'path-to-destination-nsf-file.xhtml'
 ```
-Above usage will not quit the application by itself when conversion is done.
