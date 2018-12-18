@@ -7,9 +7,15 @@ package
     
     import actionScripts.utils.FileUtils;
     
+    import converter.Converter;
+    
+    import events.ConverterEvent;
+    
     [SWF(frameRate=60, width=0, height=0, visible=false, showStatusBar=false)]
     public class XHTMLConverterCLI extends Sprite
 	{
+		private var converter:Converter;
+		
 		private var isPublishToPrimefacesArg:Boolean;
 		private var ifPublishToPrimefacesSource:String;
 		private var ifPublishToPrimeFacesTarget:String;
@@ -76,11 +82,30 @@ package
 			*/
 			function onSuccessRead(value:Object):void
 			{
-				// TEMP
-				if (value is String) publishReadToPrimefaces(value);
+				if (value is String) sendForConversion(value as String);
 				else quit();
 			}
 			function onErrorRead(value:String):void
+			{
+				quit();
+			}
+		}
+		
+		private function sendForConversion(value:String):void
+		{
+			converter = Converter.getInstance();
+			converter.addEventListener(ConverterEvent.CONVERSION_COMPLETED, onConversionCompletes);
+			converter.fromXMLOnly(value);
+		}
+		
+		private function onConversionCompletes(event:ConverterEvent):void
+		{
+			converter.removeEventListener(ConverterEvent.CONVERSION_COMPLETED, onConversionCompletes);
+			if (event.xHtmlOutput)
+			{
+				publishReadToPrimefaces(event.xHtmlOutput);
+			}
+			else
 			{
 				quit();
 			}
