@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+  <output>
+    <movie disabled="False"/>
+    <movie platform="null"/>
+    <movie version="30"/>
+    <movie width="100"/>
+    <movie fps="24"/>
+    <movie height="100"/>
+    <movie background="#000000"/>
+    <movie path="bin-debug/XHTMLConverterCLI.swf"/>
+    <movie input=""/>
+  </output>
+  &lt;!-- Other classes to be compiled into your SWF --&gt;
+  <classpaths>
+    <class path="src"/>
+  </classpaths>
+  <moonshineResourcePaths></moonshineResourcePaths>
+  <moonshineNativeExtensionPaths></moonshineNativeExtensionPaths>
+  <build>
+    <option accessible="True"/>
+    <option useNetwork="True"/>
+    <option allowSourcePathOverlap="False"/>
+    <option showUnusedTypeSelectorWarnings="True"/>
+    <option useResourceBundleMetadata="True"/>
+    <option benchmark="False"/>
+    <option warnings="True"/>
+    <option es="False"/>
+    <option verboseStackTraces="False"/>
+    <option customSDK=""/>
+    <option loadConfig=""/>
+    <option linkReport=""/>
+    <option antBuildPath=""/>
+    <option staticLinkRSL="False"/>
+    <option showActionScriptWarnings="True"/>
+    <option compilerConstants=""/>
+    <option additional="-locale en_US"/>
+    <option showBindingWarnings="True"/>
+    <option optimize="True"/>
+    <option showDeprecationWarnings="True"/>
+    <option locale=""/>
+    <option strict="True"/>
+  </build>
+  <mavenBuild>
+    <option mavenBuildPath=""/>
+    <option settingsFilePath=""/>
+    <option commandLine=""/>
+    <actions>
+      <action actionName="Build" action="install"/>
+      <action actionName="Clean" action="clean"/>
+      <action actionName="Clean and Build" action="clean install"/>
+      <action actionName="Exploded" action="war:exploded"/>
+    </actions>
+  </mavenBuild>
+  <includeLibraries></includeLibraries>
+  <libraryPaths></libraryPaths>
+  <externalLibraryPaths>
+    <element path="libs/VisualEditorConverterLib-0.1.0.swc"/>
+  </externalLibraryPaths>
+  <rslPaths></rslPaths>
+  <intrinsics></intrinsics>
+  <library/>
+  <compileTargets>
+    <compile path="src/XHTMLConverterCLI.as"/>
+  </compileTargets>
+  <hiddenPaths></hiddenPaths>
+  <preBuildCommand>null</preBuildCommand>
+  <postBuildCommand alwaysRun="False">null</postBuildCommand>
+  <trustSVNCertificate>False</trustSVNCertificate>
+  <options>
+    <option testMovie="AIR"/>
+    <option testMovieCommand=""/>
+    <option showHiddenPaths="False"/>
+    <option defaultBuildTargets=""/>
+    <option isExportedToExistingSource="False"/>
+    <option isPrimeFacesVisualEditor="False"/>
+    <option visualEditorExportPath=""/>
+  </options>
+  <moonshineRunCustomization>
+    <option urlToLaunch=""/>
+    <option projectType="1"/>
+    <option customUrlToLaunch=""/>
+    <option deviceSimulator="null"/>
+    <option targetPlatform="1"/>
+    <option launchMethod="Simulator"/>
+    <deviceSimulator>null</deviceSimulator>
+    <certAndroid>null</certAndroid>
+    <certIos>null</certIos>
+    <certIosProvisioning>null</certIosProvisioning>
+  </moonshineRunCustomization>
+</project>
