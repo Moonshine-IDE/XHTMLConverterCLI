@@ -22,3 +22,15 @@ An alternative option is as follows, this shall work as long as we keep the exec
 ```
 '\Applications\XHTMLConverterCLI.app\Contents\MacOS\XHTMLConverterCLI' --publish-to-primefaces 'path-to-source-nsf-file.xml' 'path-to-destination-nsf-file.xhtml'
 ```
+
+#### Log
+Log file generates against current conversion job to following place:
+
+**Windows:**
+```
+C:\Users\$userName\AppData\Roaming\net.prominic.xhtmlConverterCLI\Local Store
+```
+**OSX:**
+```
+/Users/$userName/Library/Application Support/net.prominic.xhtmlConverterCLI/Local Store
+```
