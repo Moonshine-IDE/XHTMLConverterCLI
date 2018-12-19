@@ -11,15 +11,13 @@ package
     
     import events.ConverterEvent;
     
-    [SWF(frameRate=60, width=0, height=0, visible=false, showStatusBar=false)]
+    [SWF(frameRate=60, width=1020, height=768, visible=false, showStatusBar=false)]
     public class XHTMLConverterCLI extends Sprite
 	{
-		private var converter:Converter;
-		
 		private var isPublishToPrimefacesArg:Boolean;
 		private var ifPublishToPrimefacesSource:String;
 		private var ifPublishToPrimeFacesTarget:String;
-
+		
 		public function XHTMLConverterCLI()
 		{
 			super();
@@ -33,7 +31,7 @@ package
 			var arg:Array = event.arguments;
 			if (arg.length != 0)
 			{
-				for (var i:int; i < arg.length; i++)
+				for (var i:int = 0; i < arg.length; i++)
 				{
 					// parsing if publish-to-primefaces exists
 					if (!isPublishToPrimefacesArg && (arg[i] == "--publish-to-primefaces"))
@@ -82,7 +80,7 @@ package
 			*/
 			function onSuccessRead(value:Object):void
 			{
-				if (value is String) sendForConversion(value as String);
+				if (value) sendForConversion(new XML(value));
 				else quit();
 			}
 			function onErrorRead(value:String):void
@@ -91,16 +89,15 @@ package
 			}
 		}
 		
-		private function sendForConversion(value:String):void
+		private function sendForConversion(value:XML):void
 		{
-			converter = Converter.getInstance();
-			converter.addEventListener(ConverterEvent.CONVERSION_COMPLETED, onConversionCompletes);
-			converter.fromXMLOnly(value);
+			Converter.getInstance().addEventListener(ConverterEvent.CONVERSION_COMPLETED, onConversionCompletes);
+			Converter.getInstance().fromXMLOnly(value);
 		}
 		
 		private function onConversionCompletes(event:ConverterEvent):void
 		{
-			converter.removeEventListener(ConverterEvent.CONVERSION_COMPLETED, onConversionCompletes);
+			Converter.getInstance().removeEventListener(ConverterEvent.CONVERSION_COMPLETED, onConversionCompletes);
 			if (event.xHtmlOutput)
 			{
 				publishReadToPrimefaces(event.xHtmlOutput);
@@ -114,7 +111,7 @@ package
 		private function publishReadToPrimefaces(value:Object):void
 		{
 			var toFile:File = new File(ifPublishToPrimeFacesTarget);
-			FileUtils.writeToFileAsync(toFile, value as String, onSuccessWrite, onErrorWrite);
+			FileUtils.writeToFileAsync(toFile, value, onSuccessWrite, onErrorWrite);
 			
 			/*
 			* @local

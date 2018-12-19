@@ -233,129 +233,6 @@
 		</java>
 	</target>
 	
-	<!-- Compile .pkg to distribute through app store -->
-	<target name="buildAppStorePKG" depends="compile app project" if="${Is.Keychain.Certificate.Defined}">
-		<copy tofile="${desktopBinaryFilename}/Contents/Resources/Icon.icns" file="${basedir}/moonshineIcons.icns" overwrite="true"/>
-		<replace file="${desktopBinaryFilename}/Contents/Info.plist">
-			<replacetoken><![CDATA[<string>Icon.icns</string>]]></replacetoken>
-			<replacevalue><![CDATA[<string>Icon.icns</string>
-			<key>CFBundleName</key>
-			<string>Moonshine XHTMLConverterCLI</string>
-			<key>LSApplicationCategoryType</key>
-			<string>public.app-category.developer-tools</string>
-			<key>CFBundleVersion</key>
-			<string>1</string>]]></replacevalue>
-		</replace>
-		<exec executable="bash">
-			<arg value="-c"/>
-			<arg value='security unlock-keychain -p "${certSignedMacOSKeychainPass}"'/>
-		</exec>
-		<exec executable="bash">
-			<arg value="-c"/>
-			<arg value="rm ${desktopBinaryFilename}/Contents/Frameworks/Adobe\ AIR.framework/Versions/1.0/Resources/WebKit.dylib"/>
-		</exec>
-		<exec executable="bash">
-			<arg value="-c"/>
-			<arg value="chmod -R 777 ${desktopBinaryFilename}"/>
-		</exec>
-		<!--exec executable="bash">
-			<arg value="-c"/>
-			<arg value="rm ${desktopBinaryFilename}/Contents/Frameworks/Adobe\ AIR.framework/Versions/1.0/Resources/AdobeCP15.plugin/Contents/Info.plist"/>
-		</exec-->
-		<exec executable="bash">
-			<arg value="-c"/>
-			<arg value="rm ${desktopBinaryFilename}/Contents/Frameworks/Adobe\ AIR.framework/Versions/1.0/Resources/Flash\ Player.plugin/Contents/Info.plist"/>
-		</exec>
-		<exec executable="bash">
-			<arg value="-c"/>
-			<arg value="rm ${desktopBinaryFilename}/Contents/Frameworks/Adobe\ AIR.framework/Versions/1.0/Adobe\ AIR_64\ Helper"/>
-		</exec>
-		<exec executable="bash">
-			<arg value="-c"/>
-			<arg value="rm ${desktopBinaryFilename}/Contents/Frameworks/Adobe\ AIR.framework/Versions/1.0/Resources/ExtendedAppEntryTemplate64"/>
-		</exec>
-		<!--exec executable="bash">
-			<arg value="-c"/>
-			<arg value='codesign -f -v -s "${certSignedMacOSKeychainName}" ${desktopBinaryFilename}/Contents/Frameworks/Adobe\ AIR.framework/Versions/1.0/Resources/AdobeCP15.plugin/Contents/MacOS/AdobeCP'/>
-		</exec-->
-		<!--exec executable="bash">
-			<arg value="-c"/>
-			<arg value='codesign -f -v -s "${certSignedMacOSKeychainName}" ${desktopBinaryFilename}/Contents/Frameworks/Adobe\ AIR.framework/Versions/1.0/Resources/AdobeCP15.plugin'/>
-		</exec-->
-		<!--exec executable="bash">
-			<arg value="-c"/>
-			<arg value='codesign -f -v -s "${certSignedMacOSKeychainName}" ${desktopBinaryFilename}/Contents/Frameworks/Adobe\ AIR.framework/Versions/1.0/Resources/Flash\ Player.plugin'/>
-		</exec-->
-		<!--exec executable="bash">
-			<arg value="-c"/>
-			<arg value='codesign -f -v -s "${certSignedMacOSKeychainName}" ${desktopBinaryFilename}/Contents/Frameworks/Adobe\ AIR.framework/Versions/1.0/Resources/Flash\ Player.plugin/Contents/Resources/FlashPlayer-10.6.rsrc'/>
-		</exec-->
-		<exec executable="bash">
-			<arg value="-c"/>
-			<arg value='codesign -f -v -s "${certSignedMacOSKeychainName}" ${desktopBinaryFilename}/Contents/Frameworks/Adobe\ AIR.framework/Versions/1.0/Resources/Flash\ Player.plugin/Contents/MacOS/FlashPlayer-10.6'/>
-		</exec>
-		<!--exec executable="bash">
-			<arg value="-c"/>
-			<arg value='codesign -f -v -s "${certSignedMacOSKeychainName}" ${desktopBinaryFilename}/Contents/Frameworks/Adobe\ AIR.framework/Versions/1.0/Adobe\ AIR_64\ Helper'/>
-		</exec-->
-		<exec executable="bash">
-			<arg value="-c"/>
-			<arg value='codesign -f -v -s "${certSignedMacOSKeychainName}" ${desktopBinaryFilename}/Contents/Frameworks/Adobe\ AIR.framework/Versions/1.0/Adobe\ AIR_64'/>
-		</exec>
-		<exec executable="bash">
-			<arg value="-c"/>
-			<arg value='codesign -f -v -s "${certSignedMacOSKeychainName}" ${desktopBinaryFilename}/Contents/Frameworks/Adobe\ AIR.framework/Versions/1.0/Adobe\ AIR'/>
-		</exec>
-		<exec executable="bash">
-			<arg value="-c"/>
-			<arg value='codesign -f -v -s "${certSignedMacOSKeychainName}" ${desktopBinaryFilename}/Contents/Frameworks/Adobe\ AIR.framework/Versions/1.0/Resources/Adobe\ AIR.vch'/>
-		</exec>
-		<!--exec executable="bash">
-			<arg value="-c"/>
-			<arg value='codesign -f -v -s "${certSignedMacOSKeychainName}" ${desktopBinaryFilename}/Contents/Frameworks/Adobe\ AIR.framework/Versions/1.0/Resources/ExtendedAppEntryTemplate64'/>
-		</exec-->
-		<!--exec executable="bash">
-			<arg value="-c"/>
-			<arg value='codesign -f -v -s "${certSignedMacOSKeychainName}" ${desktopBinaryFilename}/Contents/Frameworks/Adobe\ AIR.framework/Versions/1.0/Resources/adobecp.plugin'/>
-		</exec-->
-		<exec executable="bash">
-			<arg value="-c"/>
-			<arg value='codesign -f -v -s "${certSignedMacOSKeychainName}" ${desktopBinaryFilename}/Contents/Frameworks/Adobe\ AIR.framework/Versions/1.0'/>
-		</exec>
-		<exec executable="bash">
-			<arg value="-c"/>
-			<arg value='codesign -f -v -s "${certSignedMacOSKeychainName}" ${desktopBinaryFilename}/Contents/Frameworks/Adobe\ AIR.framework'/>
-		</exec>
-		<exec executable="bash">
-			<arg value="-c"/>
-			<arg value='codesign -f -v -s "${certSignedMacOSKeychainName}" ${desktopBinaryFilename}/Contents/Resources/META-INF/AIR/extensions/karar.santanu.SecurityScopeBookmark/META-INF/ANE/MacOS-x86-64/SecurityScopeBookmark.framework/Versions/A/SecurityScopeBookmark'/>
-		</exec>
-		<exec executable="bash">
-			<arg value="-c"/>
-			<arg value='codesign -f -v -s "${certSignedMacOSKeychainName}" ${desktopBinaryFilename}/Contents/Resources/META-INF/AIR/extensions/karar.santanu.SecurityScopeBookmark/META-INF/ANE/MacOS-x86-64/SecurityScopeBookmark.framework/Versions/A'/>
-		</exec>
-		<exec executable="bash">
-			<arg value="-c"/>
-			<arg value='codesign -f -v -s "${certSignedMacOSKeychainName}" --entitlements ${debug_dir}/entitlement.plist ${desktopBinaryFilename}'/>
-		</exec>
-		<exec executable="bash" failonerror="true">
-			<arg value="-c"/>
-			<arg value='productbuild --component ${desktopBinaryFilename} /Applications ${deploy_dir}/${installerName}.pkg --sign "${certSignedMacOSKeychainInstallerName}"'/>
-		</exec>
-		<exec executable="bash" failonerror="true">
-			<arg value="-c"/>
-			<arg value='productbuild --component ${desktopBinaryFilename} /Applications ${deploy_dir}/${installerName}_DONOTUSE.pkg --sign "${certSignedMacOSKeychainInstallerName}"'/>
-		</exec>
-		<exec executable="bash" failonerror="true">
-			<arg value="-c"/>
-			<arg value='productsign --sign "Developer ID Installer: Prominic.NET, Inc." ${deploy_dir}/${installerName}_DONOTUSE.pkg ${deploy_dir}/${installerName}_Signed_NonAppStore_Distribution.pkg'/>
-		</exec>
-		<exec executable="bash" failonerror="true">
-			<arg value="-c"/>
-			<arg value='rm ${deploy_dir}/${installerName}_DONOTUSE.pkg'/>
-		</exec>
-	</target>
-	
 	<!--
 	//==========================================================================
 	//
@@ -429,7 +306,6 @@
 			   allow-source-path-overlap="true">
 			<load-config filename="${FLEX_HOME}/frameworks/air-config.xml"/>
 			<source-path path-element="${applicationSourceDirectory}"/>
-			<library-path dir="${debug_dir}" includes="*.swc" append="true" />
 			<compiler.library-path dir="../libs" append="true">
 				<include name="*.swc" />
 			</compiler.library-path>

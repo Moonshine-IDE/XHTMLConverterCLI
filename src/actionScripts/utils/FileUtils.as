@@ -53,8 +53,9 @@ package actionScripts.utils
 			var fs:FileStream = new FileStream();
 			manageListeners(fs, true);
 			fs.openAsync(destination, FileMode.WRITE);
-			if (data is String) fs.writeUTFBytes(data as String);
-			else if (data is ByteArray) fs.writeBytes(data as ByteArray);
+			if (data is ByteArray) fs.writeBytes(data as ByteArray);
+			else if (data is String) fs.writeUTFBytes(data as String);
+			else if (data is XML) fs.writeUTFBytes((data as XML).toXMLString());
 			else 
 			{
 				throw Error('Save data is invalid: '+ destination.nativePath);
