@@ -40,6 +40,8 @@ package
 					// parsing if publish-to-primefaces exists
 					if (!isPublishToPrimefacesArg && (arg[i] == "--publish-to-primefaces"))
 					{
+						logState("Found PrimeFaces Argument::--publish-to-primefaces");
+						
 						// next two parameters must be supplying
 						// values against 'publish-to-primefaces'
 						if ((i + 2) < arg.length)
@@ -66,6 +68,11 @@ package
 			{
 				initPublishRead();
 			}
+			else
+			{
+				logState("Not Enough Details::Expected Path Details Not Found: --publish-to-primefaces");
+				saveLogAndQuit();
+			}
 		}
 		
 		private function initPublishRead():void
@@ -90,7 +97,14 @@ package
 				if (value) 
 				{
 					logState("Read Completes::Read Success From: "+ ifPublishToPrimefacesSource);
-					sendForConversion(new XML(value));
+					try
+					{
+						sendForConversion(new XML(value));
+					} catch (e:Error)
+					{
+						logState("Type Conversion::Error While XML Conversion: "+ e.getStackTrace());
+						saveLogAndQuit();
+					}
 				}
 				else 
 				{
@@ -107,6 +121,13 @@ package
 		
 		private function sendForConversion(value:XML):void
 		{
+			if (!value)
+			{
+				logState("XML Type::Unable to Read Data as XML");
+				saveLogAndQuit();
+				return;
+			}
+			
 			logState("Converter Called::Sending Data For Conversion:\n"+ value.toXMLString());
 			Converter.getInstance().addEventListener(ConverterEvent.CONVERSION_COMPLETED, onConversionCompletes);
 			Converter.getInstance().fromXMLOnly(value);

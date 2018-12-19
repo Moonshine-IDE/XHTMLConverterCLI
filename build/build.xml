@@ -22,12 +22,9 @@
 	<property name="deploy_dir" value="DEPLOY"/>
 	<property name="debug_dir" value="bin-debug"/>
 
-	<property name="IsDesktopBuild" value="${APP_PROPERTIES.isDesktop}"/>
 	<property name="IsDevelopmentBuild" value="${APP_PROPERTIES.isDevelopmentVersion}"/>
 	<property name="BuildVersion" value="${APP_PROPERTIES.buildVersion}"/>
 	<property name="Is.Signed.Build" value="${APP_PROPERTIES.isSignedBuild}"/>
-	<property name="certSignedAIR" value="${APP_PROPERTIES.certSignedAIR}" />
-	<property name="certSignedAIRPassword" value="${APP_PROPERTIES.certSignedAIRPass}" />
 	<property name="certSignedWindowsBinary" value="${APP_PROPERTIES.certSignedWindowsBinary}" />
 	<property name="certSignedWindowsBinaryPassword" value="${APP_PROPERTIES.certSignedWindowsBinaryPass}" />
 	<property name="certSignedDevIDKeychainName" value="${APP_PROPERTIES.certSignedDevIDKeychainName}" />
@@ -40,15 +37,7 @@
 	<if>
 		<os family="windows"/>
 		<then>
-			<if>
-				<os arch="x86"/>
-				<then>
-					<propertycopy property="FLEX_HOME" from="APP_PROPERTIES.winSDKPath" silent="true" />
-				</then>
-				<else>
-					<propertycopy property="FLEX_HOME" from="APP_PROPERTIES.winSDKPath64" silent="true" />
-				</else>
-			</if>
+			<propertycopy property="FLEX_HOME" from="APP_PROPERTIES.winSDKPath" silent="true" />
 		</then>
 		<else>
 			<propertycopy property="FLEX_HOME" from="APP_PROPERTIES.unixSDKPath" silent="true" />
@@ -119,24 +108,18 @@
 	<!-- OS Check and decision on opening Task -->
 	<target name="checkOS">
 		<if>
-			<equals arg1="${IsDesktopBuild}" arg2="true"/>
-			<!-- consider a desktop build -->
+			<os family="windows"/>
 			<then>
-				<if>
-					<os family="windows"/>
-					<then>
-						<property name="isOSX" value="false"/>
-						<antcall target="disposeTempWindows"></antcall>
-					</then>
-					<elseif>
-						<os family="unix"/>
-						<then>
-							<property name="isOSX" value="true"/>
-							<antcall target="disposeTempUNIX"></antcall>
-						</then>
-					</elseif>
-				</if>
+				<property name="isOSX" value="false"/>
+				<antcall target="disposeTempWindows"></antcall>
 			</then>
+			<elseif>
+				<os family="unix"/>
+				<then>
+					<property name="isOSX" value="true"/>
+					<antcall target="disposeTempUNIX"></antcall>
+				</then>
+			</elseif>
 		</if>
 	</target>
 
@@ -250,7 +233,7 @@
 	</target>
 	
 	<!-- modify in the descriptor file -->
-	<target name="modifyDescriptor" depends="init" if="${IsDesktopBuild}">
+	<target name="modifyDescriptor" depends="init">
 		<copy file="${desktopApplicationDescriptorOriginal}" todir="${debug_dir}" overwrite="true"/>
 		
 		<!-- modify field values based upon isDevelopment tag -->
@@ -277,7 +260,6 @@
 			<os family="unix"/>
 			<then>
 				<property name="desktopBinaryFilename" value="${deploy_dir}/${installerName}.app"/>
-				<copy file="entitlement.plist" todir="${debug_dir}" overwrite="true"/>
 			</then>
 			<else>
 				<property name="desktopBinaryFilename" value="${deploy_dir}/${installerName}.exe"/>

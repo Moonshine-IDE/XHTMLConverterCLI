@@ -58,7 +58,8 @@ package actionScripts.utils
 			else if (data is XML) fs.writeUTFBytes((data as XML).toXMLString());
 			else 
 			{
-				throw Error('Save data is invalid: '+ destination.nativePath);
+				manageListeners(fs, false);
+				if (errorHandler != null) errorHandler("Error::Unknown data type on write.");
 				return;
 			}
 			
@@ -76,7 +77,7 @@ package actionScripts.utils
 			function handleFSError(event:IOErrorEvent):void
 			{
 				manageListeners(event.target as FileStream, false);
-				if (errorHandler != null) successHandler(event.text);
+				if (errorHandler != null) errorHandler(event.text);
 			}
 			function manageListeners(origin:FileStream, attach:Boolean):void
 			{
@@ -131,7 +132,7 @@ package actionScripts.utils
 			function onIOErrorReadChannel(event:IOErrorEvent):void
 			{
 				manageListeners(event.target as FileStream, false);
-				if (errorHandler != null) successHandler(event.text);
+				if (errorHandler != null) errorHandler(event.text);
 			}
 			function manageListeners(origin:FileStream, attach:Boolean):void
 			{
