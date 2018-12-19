@@ -11,7 +11,7 @@ package
     
     import events.ConverterEvent;
     
-    [SWF(frameRate=60, width=1020, height=768, visible=false, showStatusBar=false)]
+    [SWF(frameRate=60, width=0, height=0, visible=false, showStatusBar=false)]
     public class XHTMLConverterCLI extends Sprite
 	{
 		private var isPublishToPrimefacesArg:Boolean;
