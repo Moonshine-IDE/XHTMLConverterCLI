@@ -1,2 +1,3 @@
 build/bin-debug
 obj/XHTMLConverterCLIConfig.xml
+build/DEPLOY/XHTMLConverterCLI.exe
