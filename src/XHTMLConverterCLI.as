@@ -58,9 +58,8 @@ package
 			}
 			else
 			{
-				logState("No Arguments Found - terminates");
 				// if no argument present, saveLogAndQuit
-				this.saveLogAndQuit();
+				exitWithReason("No Arguments Found - terminates");
 			}
 			
 			// --publish-to-primefaces
@@ -70,8 +69,7 @@ package
 			}
 			else
 			{
-				logState("Not Enough Details::Expected Path Details Not Found: --publish-to-primefaces");
-				saveLogAndQuit();
+				exitWithReason("Not Enough Details::Expected Path Details Not Found: --publish-to-primefaces");
 			}
 		}
 		
@@ -85,8 +83,7 @@ package
 			}
 			else
 			{
-				logState("Read File::Destination File Does Not Exists - terminates: "+ ifPublishToPrimefacesSource);
-				saveLogAndQuit();
+				exitWithReason("Read File::Destination File Does Not Exists - terminates: "+ ifPublishToPrimefacesSource);
 			}
 			
 			/*
@@ -102,32 +99,22 @@ package
 						sendForConversion(new XML(value));
 					} catch (e:Error)
 					{
-						logState("Type Conversion::Error While XML Conversion: "+ e.getStackTrace());
-						saveLogAndQuit();
+						exitWithReason("Type Conversion::Error While XML Conversion: "+ e.getStackTrace());
 					}
 				}
 				else 
 				{
-					logState("Read Completes::Bad Data From: "+ ifPublishToPrimefacesSource);
-					saveLogAndQuit();
+					exitWithReason("Read Completes::Bad Data From: "+ ifPublishToPrimefacesSource);
 				}
 			}
 			function onErrorRead(value:String):void
 			{
-				logState("Read Failed::Error Reading From: "+ ifPublishToPrimefacesSource +"\n"+ value);
-				saveLogAndQuit();
+				exitWithReason("Read Failed::Error Reading From: "+ ifPublishToPrimefacesSource +"\n"+ value);
 			}
 		}
 		
 		private function sendForConversion(value:XML):void
 		{
-			if (!value)
-			{
-				logState("XML Type::Unable to Read Data as XML");
-				saveLogAndQuit();
-				return;
-			}
-			
 			logState("Converter Called::Sending Data For Conversion:\n"+ value.toXMLString());
 			Converter.getInstance().addEventListener(ConverterEvent.CONVERSION_COMPLETED, onConversionCompletes);
 			Converter.getInstance().fromXMLOnly(value);
@@ -144,8 +131,7 @@ package
 			}
 			else
 			{
-				logState("No Conversion Data Received From Converter - terminates");
-				saveLogAndQuit();
+				exitWithReason("No Conversion Data Received From Converter - terminates");
 			}
 		}
 		
@@ -161,20 +147,17 @@ package
 			*/
 			function onSuccessWrite():void
 			{
-				logState("Save File::Process Completes At: "+ ifPublishToPrimeFacesTarget);
-				
 				// @note
 				// Unfortunately, even the invoke event do fire 
 				// multiple times when an application is already open,
 				// its argument array do not re-generates except in
 				// the first time; thus, let close it and re-open the
 				// app again
-				saveLogAndQuit();
+				exitWithReason("Save File::Process Completes At: "+ ifPublishToPrimeFacesTarget);
 			}
 			function onErrorWrite(value:String):void
 			{
-				logState("Save File::Write Error At: "+ ifPublishToPrimeFacesTarget +"\n"+ value);
-				saveLogAndQuit();
+				exitWithReason("Save File::Write Error At: "+ ifPublishToPrimeFacesTarget +"\n"+ value);
 			}
 		}
 		
@@ -206,6 +189,12 @@ package
 			}
 		}
 		
+		private function exitWithReason(reason:String):void
+		{
+			logState(reason);
+			saveLogAndQuit();
+		}
+		
 		private function logState(value:String):void
 		{
 			log += value +"\n";
@@ -220,9 +209,8 @@ package
 			}
 			catch (e:Error)
 			{
-				logState("File Path Has Invalid Data - terminates: "+ path);
 				// if any bad data to treat as File
-				saveLogAndQuit();
+				exitWithReason("File Path Has Invalid Data - terminates: "+ path);
 			}
 			
 			return null;
