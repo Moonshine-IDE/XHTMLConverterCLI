@@ -65,7 +65,7 @@ package
 		
 		private function initPublishRead():void
 		{
-			var fromFile:File = new File(ifPublishToPrimefacesSource)
+			var fromFile:File = convertToFile(ifPublishToPrimefacesSource);
 			if (fromFile.exists)
 			{
 				FileUtils.readFromFileAsync(fromFile, FileUtils.DATA_FORMAT_STRING, onSuccessRead, onErrorRead);
@@ -110,7 +110,7 @@ package
 		
 		private function publishReadToPrimefaces(value:Object):void
 		{
-			var toFile:File = new File(ifPublishToPrimeFacesTarget);
+			var toFile:File = convertToFile(ifPublishToPrimeFacesTarget);
 			FileUtils.writeToFileAsync(toFile, value, onSuccessWrite, onErrorWrite);
 			
 			/*
@@ -135,6 +135,22 @@ package
 		private function quit():void
 		{
 			stage.nativeWindow.close();
+		}
+		
+		private function convertToFile(path:String):File
+		{
+			try
+			{
+				var tmpFile:File = new File(path);
+				return tmpFile;
+			}
+			catch (e:Error)
+			{
+				// if any bad data to treat as File
+				quit();
+			}
+			
+			return null;
 		}
     }
 }
