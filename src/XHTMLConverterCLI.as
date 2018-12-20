@@ -6,6 +6,7 @@ package
     import flash.filesystem.File;
     
     import actionScripts.utils.FileUtils;
+    import actionScripts.utils.Logger;
     
     import converter.Converter;
     
@@ -17,7 +18,7 @@ package
 		private var isPublishToPrimefacesArg:Boolean;
 		private var ifPublishToPrimefacesSource:String;
 		private var ifPublishToPrimeFacesTarget:String;
-		private var log:String = "";
+		private var logger:Logger = new Logger();
 		
 		public function XHTMLConverterCLI()
 		{
@@ -28,38 +29,49 @@ package
 		private function onInvokeEvent(event:InvokeEvent):void
 		{
 			NativeApplication.nativeApplication.removeEventListener(InvokeEvent.INVOKE, onInvokeEvent);
+			logger.initLogger(onSuccessLoggerRead);
 			
-			var arg:Array = event.arguments;
-			logState("Invoked by CLI Event::Arguments Count: "+ arg.length);
-			logState("Arguments:\n"+ event.arguments.join("\n"));
-			
-			if (arg.length != 0)
+			/*
+			 * @local
+			 */
+			function onSuccessLoggerRead():void
 			{
-				for (var i:int = 0; i < arg.length; i++)
+				readByInvokeArguments(event.arguments);
+			}
+		}
+		
+		private function readByInvokeArguments(args:Array):void
+		{
+			logger.log = "Invoked by CLI Event::Arguments Count: "+ args.length;
+			logger.log = "Arguments:\n"+ args.join("\n") +"\n";
+			
+			if (args.length != 0)
+			{
+				for (var i:int = 0; i < args.length; i++)
 				{
 					// parsing if publish-to-primefaces exists
-					if (!isPublishToPrimefacesArg && (arg[i] == "--publish-to-primefaces"))
+					if (!isPublishToPrimefacesArg && (args[i] == "--publish-to-primefaces"))
 					{
-						logState("Found PrimeFaces Argument::--publish-to-primefaces");
+						logger.log = "Found PrimeFaces Argument::--publish-to-primefaces\n";
 						
 						// next two parameters must be supplying
 						// values against 'publish-to-primefaces'
-						if ((i + 2) < arg.length)
+						if ((i + 2) < args.length)
 						{
 							isPublishToPrimefacesArg = true;
-							ifPublishToPrimefacesSource = arg[i+1];
-							ifPublishToPrimeFacesTarget = arg[i+2];
+							ifPublishToPrimefacesSource = args[i+1];
+							ifPublishToPrimeFacesTarget = args[i+2];
 						}
 					}
 					
-					// do any other arg check if requires,
-					// at here ...
+					// parse any other arguments if requires
+					// down this place
 				}
 			}
 			else
 			{
 				// if no argument present, saveLogAndQuit
-				exitWithReason("No Arguments Found - terminates");
+				exitWithReason("No Arguments Found");
 			}
 			
 			// --publish-to-primefaces
@@ -69,7 +81,7 @@ package
 			}
 			else
 			{
-				exitWithReason("Not Enough Details::Expected Path Details Not Found: --publish-to-primefaces");
+				exitWithReason("Not Enough Details::Expected Path Details Not Found: --publish-to-primefaces\n");
 			}
 		}
 		
@@ -78,7 +90,7 @@ package
 			var fromFile:File = convertToFile(ifPublishToPrimefacesSource);
 			if (fromFile.exists)
 			{
-				logState("Read File::Starting the Process From: "+ ifPublishToPrimefacesSource);
+				logger.log = "Read File::Starting the Process From: "+ ifPublishToPrimefacesSource;
 				FileUtils.readFromFileAsync(fromFile, FileUtils.DATA_FORMAT_STRING, onSuccessRead, onErrorRead);
 			}
 			else
@@ -93,7 +105,7 @@ package
 			{
 				if (value) 
 				{
-					logState("Read Completes::Read Success From: "+ ifPublishToPrimefacesSource);
+					logger.log = "Read Completes::Read Success From: "+ ifPublishToPrimefacesSource +"\n";
 					try
 					{
 						sendForConversion(new XML(value));
@@ -109,35 +121,35 @@ package
 			}
 			function onErrorRead(value:String):void
 			{
-				exitWithReason("Read Failed::Error Reading From: "+ ifPublishToPrimefacesSource +"\n"+ value);
+				exitWithReason("Read Failed::Error Reading From: "+ ifPublishToPrimefacesSource +"\n"+ value +"\n");
 			}
 		}
 		
 		private function sendForConversion(value:XML):void
 		{
-			logState("Converter Called::Sending Data For Conversion:\n"+ value.toXMLString());
+			logger.log = "Converter Called::Sending Data For Conversion";
 			Converter.getInstance().addEventListener(ConverterEvent.CONVERSION_COMPLETED, onConversionCompletes);
 			Converter.getInstance().fromXMLOnly(value);
 		}
 		
 		private function onConversionCompletes(event:ConverterEvent):void
 		{
-			logState("Converter Return::Callback From Converter");
+			logger.log = "Converter Return::Callback From Converter";
 			Converter.getInstance().removeEventListener(ConverterEvent.CONVERSION_COMPLETED, onConversionCompletes);
 			if (event.xHtmlOutput)
 			{
-				logState("Preparing Conversion Save::Received Conversion Data:\n"+ event.xHtmlOutput.toXMLString());
+				logger.log = "\nPreparing Conversion Save::Received Conversion Data";
 				publishReadToPrimefaces(event.xHtmlOutput);
 			}
 			else
 			{
-				exitWithReason("No Conversion Data Received From Converter - terminates");
+				exitWithReason("No Conversion Data Received From Converter\n");
 			}
 		}
 		
 		private function publishReadToPrimefaces(value:Object):void
 		{
-			logState("Save File::Starting Process To Save At: "+ ifPublishToPrimeFacesTarget);
+			logger.log = "Save File::Starting Process To Save At: "+ ifPublishToPrimeFacesTarget;
 			
 			var toFile:File = convertToFile(ifPublishToPrimeFacesTarget);
 			FileUtils.writeToFileAsync(toFile, value, onSuccessWrite, onErrorWrite);
@@ -163,11 +175,10 @@ package
 		
 		private function saveLogAndQuit():void
 		{
-			logState("Terminating Application.");
+			logger.log = "\nTerminating Application.";
 			
 			// save the the log file
-			var logFile:File = File.applicationStorageDirectory.resolvePath("log.txt");
-			FileUtils.writeToFileAsync(logFile, log, onSuccessWrite, onErrorWrite);
+			logger.saveLog(onSuccessWrite, onErrorWrite);
 			
 			/*
 			* @local
@@ -191,13 +202,8 @@ package
 		
 		private function exitWithReason(reason:String):void
 		{
-			logState(reason);
+			logger.log = reason;
 			saveLogAndQuit();
-		}
-		
-		private function logState(value:String):void
-		{
-			log += value +"\n";
 		}
 		
 		private function convertToFile(path:String):File

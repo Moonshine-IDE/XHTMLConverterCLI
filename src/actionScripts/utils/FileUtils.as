@@ -18,6 +18,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package actionScripts.utils
 {
+	import flash.events.Event;
 	import flash.events.IOErrorEvent;
 	import flash.events.OutputProgressEvent;
 	import flash.events.ProgressEvent;
@@ -134,18 +135,27 @@ package actionScripts.utils
 				manageListeners(event.target as FileStream, false);
 				if (errorHandler != null) errorHandler(event.text);
 			}
+			function onFileReadCompletes(event:Event):void
+			{
+				// this generally fires when a file has
+				// no content thus no progressEvent will fire
+				manageListeners(event.target as FileStream, false);
+				if (successHandler != null) successHandler("");
+			}
 			function manageListeners(origin:FileStream, attach:Boolean):void
 			{
 				if (attach)
 				{
 					origin.addEventListener(ProgressEvent.PROGRESS, onOutputProgress);
 					origin.addEventListener(IOErrorEvent.IO_ERROR, onIOErrorReadChannel);
+					origin.addEventListener(Event.COMPLETE, onFileReadCompletes);
 				}
 				else
 				{
 					origin.close();
 					origin.removeEventListener(ProgressEvent.PROGRESS, onOutputProgress);
 					origin.removeEventListener(IOErrorEvent.IO_ERROR, onIOErrorReadChannel);
+					origin.removeEventListener(Event.COMPLETE, onFileReadCompletes);
 				}
 			}
 		}
