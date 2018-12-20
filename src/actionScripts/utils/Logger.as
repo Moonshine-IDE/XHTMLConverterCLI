@@ -6,22 +6,34 @@ package actionScripts.utils
 
 	public class Logger
 	{
+		public static const TYPE_WARNING:String = "warning";
+		public static const TYPE_ERROR:String = "error";
+		public static const TYPE_INFO:String = "info";
+		
 		private static const LOG_EXTENSION:String = ".txt";
 		
 		private var logTitle:String;
 		private var logFile:File;
 		private var fileNameIncreamentalCount:int = 1;
-		
-		private var _log:String = "";
-		public function set log(value:String):void
-		{
-			_log += value +"\n";
-		}
+		private var log:String = "";
+		private var conversionDate:Date;
 		
 		public function Logger()
 		{
+			conversionDate = new Date();
 			var tmpDateFormat:DateFormatter = new DateFormatter("MM_DD_YYYY");
-			logTitle = "log_"+ tmpDateFormat.format(new Date());
+			logTitle = "log_"+ tmpDateFormat.format(conversionDate);
+		}
+		
+		public function generateTimeStamp():void
+		{
+			var tmpDateFormat:DateFormatter = new DateFormatter("MM/DD/YYYY LL:NN A");
+			updateLog("Conversion started: "+ tmpDateFormat.format(conversionDate));
+		}
+		
+		public function updateLog(message:String, type:String=TYPE_INFO):void
+		{
+			log += "["+ type +"] "+ message +"\n";
 		}
 		
 		public function initLogger(onSuccess:Function):void
@@ -67,8 +79,8 @@ package actionScripts.utils
 		public function saveLog(onSuccess:Function, onFail:Function):void
 		{
 			// save the the log file
-			_log += "======================================\n";
-			FileUtils.writeToFileAsync(logFile, _log, onSuccessWrite, onErrorWrite);
+			log += "\n======================================\n\n";
+			FileUtils.writeToFileAsync(logFile, log, onSuccessWrite, onErrorWrite);
 			
 			/*
 			* @local

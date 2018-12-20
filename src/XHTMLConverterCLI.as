@@ -42,8 +42,8 @@ package
 		
 		private function readByInvokeArguments(args:Array):void
 		{
-			logger.log = "Invoked by CLI Event::Arguments Count: "+ args.length;
-			logger.log = "Arguments:\n"+ args.join("\n") +"\n";
+			logger.generateTimeStamp();
+			logger.updateLog("Arguments ("+ args.length +"):\n\n"+ args.join("\n") +"\n");
 			
 			if (args.length != 0)
 			{
@@ -52,8 +52,6 @@ package
 					// parsing if publish-to-primefaces exists
 					if (!isPublishToPrimefacesArg && (args[i] == "--publish-to-primefaces"))
 					{
-						logger.log = "Found PrimeFaces Argument::--publish-to-primefaces\n";
-						
 						// next two parameters must be supplying
 						// values against 'publish-to-primefaces'
 						if ((i + 2) < args.length)
@@ -71,7 +69,7 @@ package
 			else
 			{
 				// if no argument present, saveLogAndQuit
-				exitWithReason("No Arguments Found");
+				exitWithReason("No Arguments Found", Logger.TYPE_WARNING);
 			}
 			
 			// --publish-to-primefaces
@@ -81,7 +79,7 @@ package
 			}
 			else
 			{
-				exitWithReason("Not Enough Details::Expected Path Details Not Found: --publish-to-primefaces\n");
+				exitWithReason("Missing parameters. Expected path details not found: --publish-to-primefaces\n", Logger.TYPE_WARNING);
 			}
 		}
 		
@@ -90,12 +88,12 @@ package
 			var fromFile:File = convertToFile(ifPublishToPrimefacesSource);
 			if (fromFile.exists)
 			{
-				logger.log = "Read File::Starting the Process From: "+ ifPublishToPrimefacesSource;
+				logger.updateLog("Source file read starts at: "+ ifPublishToPrimefacesSource);
 				FileUtils.readFromFileAsync(fromFile, FileUtils.DATA_FORMAT_STRING, onSuccessRead, onErrorRead);
 			}
 			else
 			{
-				exitWithReason("Read File::Destination File Does Not Exists - terminates: "+ ifPublishToPrimefacesSource);
+				exitWithReason("Source file does not exists at: "+ ifPublishToPrimefacesSource, Logger.TYPE_ERROR);
 			}
 			
 			/*
@@ -105,51 +103,50 @@ package
 			{
 				if (value) 
 				{
-					logger.log = "Read Completes::Read Success From: "+ ifPublishToPrimefacesSource +"\n";
+					logger.updateLog("Source file read succeed at: "+ ifPublishToPrimefacesSource +"\n");
 					try
 					{
 						sendForConversion(new XML(value));
 					} catch (e:Error)
 					{
-						exitWithReason("Type Conversion::Error While XML Conversion: "+ e.getStackTrace());
+						exitWithReason("Error while XML conversion: "+ e.getStackTrace(), Logger.TYPE_ERROR);
 					}
 				}
 				else 
 				{
-					exitWithReason("Read Completes::Bad Data From: "+ ifPublishToPrimefacesSource);
+					exitWithReason("Source file returned invalid data at: "+ ifPublishToPrimefacesSource, Logger.TYPE_ERROR);
 				}
 			}
 			function onErrorRead(value:String):void
 			{
-				exitWithReason("Read Failed::Error Reading From: "+ ifPublishToPrimefacesSource +"\n"+ value +"\n");
+				exitWithReason("Error reading source file at: "+ ifPublishToPrimefacesSource +"\n"+ value +"\n", Logger.TYPE_ERROR);
 			}
 		}
 		
 		private function sendForConversion(value:XML):void
 		{
-			logger.log = "Converter Called::Sending Data For Conversion";
+			logger.updateLog("Starting the conversion..");
 			Converter.getInstance().addEventListener(ConverterEvent.CONVERSION_COMPLETED, onConversionCompletes);
 			Converter.getInstance().fromXMLOnly(value);
 		}
 		
 		private function onConversionCompletes(event:ConverterEvent):void
 		{
-			logger.log = "Converter Return::Callback From Converter";
+			logger.updateLog("Conversion completed successfully");
 			Converter.getInstance().removeEventListener(ConverterEvent.CONVERSION_COMPLETED, onConversionCompletes);
 			if (event.xHtmlOutput)
 			{
-				logger.log = "\nPreparing Conversion Save::Received Conversion Data";
 				publishReadToPrimefaces(event.xHtmlOutput);
 			}
 			else
 			{
-				exitWithReason("No Conversion Data Received From Converter\n");
+				exitWithReason("Empty conversion data\n", Logger.TYPE_WARNING);
 			}
 		}
 		
 		private function publishReadToPrimefaces(value:Object):void
 		{
-			logger.log = "Save File::Starting Process To Save At: "+ ifPublishToPrimeFacesTarget;
+			logger.updateLog("Saving results of conversion to: "+ ifPublishToPrimeFacesTarget);
 			
 			var toFile:File = convertToFile(ifPublishToPrimeFacesTarget);
 			FileUtils.writeToFileAsync(toFile, value, onSuccessWrite, onErrorWrite);
@@ -165,17 +162,17 @@ package
 				// its argument array do not re-generates except in
 				// the first time; thus, let close it and re-open the
 				// app again
-				exitWithReason("Save File::Process Completes At: "+ ifPublishToPrimeFacesTarget);
+				exitWithReason("Save file completes at: "+ ifPublishToPrimeFacesTarget, Logger.TYPE_INFO);
 			}
 			function onErrorWrite(value:String):void
 			{
-				exitWithReason("Save File::Write Error At: "+ ifPublishToPrimeFacesTarget +"\n"+ value);
+				exitWithReason("Error while file saving at: "+ ifPublishToPrimeFacesTarget +"\n"+ value, Logger.TYPE_ERROR);
 			}
 		}
 		
 		private function saveLogAndQuit():void
 		{
-			logger.log = "\nTerminating Application.";
+			logger.updateLog("Application has been closed.");
 			
 			// save the the log file
 			logger.saveLog(onSuccessWrite, onErrorWrite);
@@ -200,9 +197,9 @@ package
 			}
 		}
 		
-		private function exitWithReason(reason:String):void
+		private function exitWithReason(reason:String, type:String):void
 		{
-			logger.log = reason;
+			logger.updateLog(reason, type);
 			saveLogAndQuit();
 		}
 		
@@ -216,7 +213,7 @@ package
 			catch (e:Error)
 			{
 				// if any bad data to treat as File
-				exitWithReason("File Path Has Invalid Data - terminates: "+ path);
+				exitWithReason("Unable to validate as file path: "+ path, Logger.TYPE_ERROR);
 			}
 			
 			return null;
