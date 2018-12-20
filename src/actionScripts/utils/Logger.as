@@ -1,9 +1,9 @@
 package actionScripts.utils
 {
 	import flash.filesystem.File;
+	import flash.globalization.DateTimeFormatter;
+	import flash.globalization.DateTimeStyle;
 	
-	import mx.formatters.DateFormatter;
-
 	public class Logger
 	{
 		public static const TYPE_WARNING:String = "warning";
@@ -21,14 +21,14 @@ package actionScripts.utils
 		public function Logger()
 		{
 			conversionDate = new Date();
-			var tmpDateFormat:DateFormatter = new DateFormatter("MM_DD_YYYY");
-			logTitle = "log_"+ tmpDateFormat.format(conversionDate);
+			var timeStamp:String = getDateTimeStamp(conversionDate, "MM_dd_yyyy");
+			logTitle = "log_"+ timeStamp;
 		}
 		
 		public function generateTimeStamp():void
 		{
-			var tmpDateFormat:DateFormatter = new DateFormatter("MM/DD/YYYY LL:NN A");
-			updateLog("Conversion started: "+ tmpDateFormat.format(conversionDate));
+			var timeStamp:String = getDateTimeStamp(conversionDate, "MM/dd/yyyy hh:kk:SSS A");
+			updateLog("Conversion started: "+ timeStamp);
 		}
 		
 		public function updateLog(message:String, type:String=TYPE_INFO):void
@@ -93,6 +93,14 @@ package actionScripts.utils
 			{
 				if (onFail != null) onFail(value);
 			}
+		}
+		
+		private function getDateTimeStamp(date:Date, format:String):String
+		{
+			var tmpFormatter:DateTimeFormatter = new DateTimeFormatter("en_US", DateTimeStyle.SHORT, DateTimeStyle.LONG);
+			tmpFormatter.setDateTimePattern(format);
+			
+			return tmpFormatter.format(date);
 		}
 	}
 }
