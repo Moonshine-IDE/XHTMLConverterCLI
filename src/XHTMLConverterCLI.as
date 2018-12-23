@@ -126,14 +126,17 @@ package
 		private function sendForConversion(value:XML):void
 		{
 			logger.updateLog("Starting the conversion..");
-			Converter.getInstance().addEventListener(ConverterEvent.CONVERSION_COMPLETED, onConversionCompletes);
+			Converter.getInstance().addEventListener(ConverterEvent.CONVERSION_COMPLETED, onConversionCompleted);
+			Converter.getInstance().addEventListener(ConverterEvent.UNKNOWN_CONVERSION_ITEM, onUnknownConversionItem);
 			Converter.getInstance().fromXMLOnly(value);
 		}
 		
-		private function onConversionCompletes(event:ConverterEvent):void
+		private function onConversionCompleted(event:ConverterEvent):void
 		{
 			logger.updateLog("Conversion completed successfully");
-			Converter.getInstance().removeEventListener(ConverterEvent.CONVERSION_COMPLETED, onConversionCompletes);
+			Converter.getInstance().removeEventListener(ConverterEvent.CONVERSION_COMPLETED, onConversionCompleted);
+			Converter.getInstance().removeEventListener(ConverterEvent.UNKNOWN_CONVERSION_ITEM, onUnknownConversionItem);
+			
 			if (event.xHtmlOutput)
 			{
 				publishReadToPrimefaces(event.xHtmlOutput);
@@ -143,6 +146,11 @@ package
 				exitWithReason("Empty conversion data\n", Logger.TYPE_WARNING);
 			}
 		}
+		
+		private function onUnknownConversionItem(event:ConverterEvent):void
+		{
+			logger.updateLog("Unknown conversion item: " + event.itemName);	
+		}		
 		
 		private function publishReadToPrimefaces(value:Object):void
 		{
