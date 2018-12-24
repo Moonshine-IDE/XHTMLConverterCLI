@@ -18,6 +18,7 @@ package
 		private var isPublishToPrimefacesArg:Boolean;
 		private var ifPublishToPrimefacesSource:String;
 		private var ifPublishToPrimeFacesTarget:String;
+		private var invokedFromDirectory:File;
 		private var logger:Logger = new Logger();
 		
 		public function XHTMLConverterCLI()
@@ -36,6 +37,7 @@ package
 			 */
 			function onSuccessLoggerRead():void
 			{
+				invokedFromDirectory = event.currentDirectory;
 				readByInvokeArguments(event.arguments);
 			}
 		}
@@ -43,6 +45,7 @@ package
 		private function readByInvokeArguments(args:Array):void
 		{
 			logger.generateTimeStamp();
+			logger.updateLog("Started from: "+ invokedFromDirectory.nativePath);
 			logger.updateLog("Arguments ("+ args.length +"):\n\n"+ args.join("\n") +"\n");
 			
 			if (args.length != 0)
@@ -85,7 +88,14 @@ package
 		
 		private function initPublishRead():void
 		{
-			var fromFile:File = convertToFile(ifPublishToPrimefacesSource);
+			var ifRelativePath:File; 
+			if (FileUtils.isRelativePath(ifPublishToPrimefacesSource))
+			{
+				// convert to abolute path to use with File API
+				ifRelativePath = invokedFromDirectory.resolvePath(ifPublishToPrimefacesSource);
+			}
+			
+			var fromFile:File = ifRelativePath ? ifRelativePath : convertToFile(ifPublishToPrimefacesSource);
 			if (fromFile.exists)
 			{
 				logger.updateLog("Source file read starts at: "+ ifPublishToPrimefacesSource);
@@ -103,7 +113,7 @@ package
 			{
 				if (value) 
 				{
-					logger.updateLog("Source file read succeed at: "+ ifPublishToPrimefacesSource +"\n");
+					logger.updateLog("Source file read succeed.\n");
 					try
 					{
 						sendForConversion(new XML(value));
@@ -150,13 +160,20 @@ package
 		private function onUnknownConversionItem(event:ConverterEvent):void
 		{
 			logger.updateLog("Unknown conversion item: " + event.itemName);	
-		}		
+		}
 		
 		private function publishReadToPrimefaces(value:Object):void
 		{
+			var ifRelativePath:File; 
+			if (FileUtils.isRelativePath(ifPublishToPrimeFacesTarget))
+			{
+				// convert to abolute path to use with File API
+				ifRelativePath = invokedFromDirectory.resolvePath(ifPublishToPrimeFacesTarget);
+			}
+			
 			logger.updateLog("Saving results of conversion to: "+ ifPublishToPrimeFacesTarget);
 			
-			var toFile:File = convertToFile(ifPublishToPrimeFacesTarget);
+			var toFile:File = ifRelativePath ? ifRelativePath : convertToFile(ifPublishToPrimeFacesTarget);
 			FileUtils.writeToFileAsync(toFile, value, onSuccessWrite, onErrorWrite);
 			
 			/*

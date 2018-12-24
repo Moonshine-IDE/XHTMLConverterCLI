@@ -18,6 +18,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package actionScripts.utils
 {
+	import flash.desktop.NativeApplication;
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
 	import flash.events.OutputProgressEvent;
@@ -31,6 +32,7 @@ package actionScripts.utils
 	{
 		public static const DATA_FORMAT_STRING:String = "dataAsString";
 		public static const DATA_FORMAT_BYTEARRAY:String = "dataAsByteArray";
+		public static const IS_MACOS:Boolean = !NativeApplication.supportsSystemTrayIcon;
 		
 		/**
 		 * Validate if a given file is
@@ -158,6 +160,31 @@ package actionScripts.utils
 					origin.removeEventListener(Event.COMPLETE, onFileReadCompletes);
 				}
 			}
+		}
+		
+		/**
+		 * Determines if target path is abolute or relative
+		 * by the given source path
+		 * @required
+		 * (path)value: String
+		 * @return
+		 * BOOL
+		 */
+		public static function isRelativePath(value:String):Boolean
+		{
+			if (!IS_MACOS)
+			{
+				var searchRegExp:RegExp = new RegExp(".*:\\");
+				var results:Array = searchRegExp.exec(value);
+				if (results != null) return false;
+			}
+			
+			// same for either platforms
+			var tmpFirstChar:String = value.charAt(0);
+			if (tmpFirstChar == "/" || tmpFirstChar == "\\") return false;
+			
+			// almost everything else
+			return true;
 		}
 	}
 }
