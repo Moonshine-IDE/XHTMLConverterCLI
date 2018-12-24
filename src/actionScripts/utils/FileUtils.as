@@ -163,8 +163,7 @@ package actionScripts.utils
 		}
 		
 		/**
-		 * Determines if target path is abolute or relative
-		 * by the given source path
+		 * Determines if given path is abolute or relative
 		 * @required
 		 * (path)value: String
 		 * @return
@@ -172,13 +171,10 @@ package actionScripts.utils
 		 */
 		public static function isRelativePath(value:String):Boolean
 		{
-			if (!IS_MACOS)
-			{
-				var searchRegExp:RegExp = new RegExp(".*:\\", "i");
-				var results:Array = searchRegExp.exec(value);
-				if (results != null) return false;
-			}
-			
+			var searchRegExp:RegExp = IS_MACOS ? new RegExp("~/.*.$", "i") : new RegExp(".*:\\", "i");
+			var results:Array = searchRegExp.exec(value);
+			if (results != null) return false;
+				
 			// same for either platforms
 			var tmpFirstChar:String = value.charAt(0);
 			if (tmpFirstChar == "/" || tmpFirstChar == "\\") return false;
