@@ -174,7 +174,7 @@ package actionScripts.utils
 		{
 			if (!IS_MACOS)
 			{
-				var searchRegExp:RegExp = new RegExp(".*:\\");
+				var searchRegExp:RegExp = new RegExp(".*:\\", "i");
 				var results:Array = searchRegExp.exec(value);
 				if (results != null) return false;
 			}

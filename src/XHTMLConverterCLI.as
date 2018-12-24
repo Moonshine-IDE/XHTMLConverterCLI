@@ -88,14 +88,9 @@ package
 		
 		private function initPublishRead():void
 		{
-			var ifRelativePath:File; 
-			if (FileUtils.isRelativePath(ifPublishToPrimefacesSource))
-			{
-				// convert to abolute path to use with File API
-				ifRelativePath = invokedFromDirectory.resolvePath(ifPublishToPrimefacesSource);
-			}
+			var fromFile:File = convertIfRelativeToAbsolute(ifPublishToPrimefacesSource);
+			if (!fromFile) return;
 			
-			var fromFile:File = ifRelativePath ? ifRelativePath : convertToFile(ifPublishToPrimefacesSource);
 			if (fromFile.exists)
 			{
 				logger.updateLog("Source file read starts at: "+ ifPublishToPrimefacesSource);
@@ -164,16 +159,10 @@ package
 		
 		private function publishReadToPrimefaces(value:Object):void
 		{
-			var ifRelativePath:File; 
-			if (FileUtils.isRelativePath(ifPublishToPrimeFacesTarget))
-			{
-				// convert to abolute path to use with File API
-				ifRelativePath = invokedFromDirectory.resolvePath(ifPublishToPrimeFacesTarget);
-			}
+			var toFile:File = convertIfRelativeToAbsolute(ifPublishToPrimeFacesTarget);
+			if (!toFile) return;
 			
 			logger.updateLog("Saving results of conversion to: "+ ifPublishToPrimeFacesTarget);
-			
-			var toFile:File = ifRelativePath ? ifRelativePath : convertToFile(ifPublishToPrimeFacesTarget);
 			FileUtils.writeToFileAsync(toFile, value, onSuccessWrite, onErrorWrite);
 			
 			/*
@@ -226,6 +215,28 @@ package
 		{
 			logger.updateLog(reason, type);
 			saveLogAndQuit();
+		}
+		
+		private function convertIfRelativeToAbsolute(path:String):File
+		{
+			var tmpFile:File;
+			if (FileUtils.isRelativePath(path))
+			{
+				try
+				{
+					// convert to abolute path to use with File API
+					tmpFile = invokedFromDirectory.resolvePath(ifPublishToPrimefacesSource);
+					return tmpFile;
+				}
+				catch (e:Error)
+				{
+					// if any bad data to treat as File
+					exitWithReason("Unable to validate as file path: "+ path, Logger.TYPE_ERROR);
+					return null;
+				}
+			}
+			
+			return convertToFile(path);
 		}
 		
 		private function convertToFile(path:String):File
