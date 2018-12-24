@@ -225,7 +225,7 @@ package
 				try
 				{
 					// convert to abolute path to use with File API
-					tmpFile = invokedFromDirectory.resolvePath(ifPublishToPrimefacesSource);
+					tmpFile = invokedFromDirectory.resolvePath(path);
 					return tmpFile;
 				}
 				catch (e:Error)
