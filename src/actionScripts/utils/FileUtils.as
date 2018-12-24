@@ -174,6 +174,14 @@ package actionScripts.utils
 			var searchRegExp:RegExp = IS_MACOS ? new RegExp("~/.*.$", "i") : new RegExp(".*:\\", "i");
 			var results:Array = searchRegExp.exec(value);
 			if (results != null) return false;
+			
+			// another possibility from Windows
+			if (!IS_MACOS)
+			{
+				searchRegExpnew RegExp(".*:/", "i");
+				results = searchRegExp.exec(value);
+				if (results != null) return false;
+			}
 				
 			// same for either platforms
 			var tmpFirstChar:String = value.charAt(0);
