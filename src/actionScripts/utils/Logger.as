@@ -1,11 +1,15 @@
 package actionScripts.utils
 {
+	import flash.events.Event;
+	import flash.events.EventDispatcher;
 	import flash.filesystem.File;
 	import flash.globalization.DateTimeFormatter;
 	import flash.globalization.DateTimeStyle;
 	
-	public class Logger
+	[Event(name="LOG_QUEUE_COMPLETED", type="flash.events.Event")]
+	public class Logger extends EventDispatcher
 	{
+		public static const LOG_QUEUE_COMPLETED:String = "logQueueCompleted";
 		public static const TYPE_WARNING:String = "warning";
 		public static const TYPE_ERROR:String = "error";
 		public static const TYPE_INFO:String = "info";
@@ -17,6 +21,8 @@ package actionScripts.utils
 		private var fileNameIncreamentalCount:int = 1;
 		private var log:String = "";
 		private var conversionDate:Date;
+		private var updateQueue:Array = [];
+		private var isWriteInProgress:Boolean;
 		
 		public function Logger()
 		{
@@ -33,7 +39,8 @@ package actionScripts.utils
 		
 		public function updateLog(message:String, type:String=TYPE_INFO):void
 		{
-			log += "["+ type +"] "+ message +"\n";
+			updateQueue.push("["+ type +"] "+ message +"\n");
+			flush();
 		}
 		
 		public function initLogger(onSuccess:Function):void
@@ -76,10 +83,24 @@ package actionScripts.utils
 			}
 		}
 		
-		public function saveLog(onSuccess:Function, onFail:Function):void
+		private function flush():void 
+		{
+			if (isWriteInProgress) return;
+			if (updateQueue.length == 0) 
+			{
+				this.dispatchEvent(new Event(LOG_QUEUE_COMPLETED));
+			}
+			else 
+			{
+				log += updateQueue.shift();
+				saveLog();
+			}
+		}
+		
+		private function saveLog():void
 		{
 			// save the the log file
-			log += "\n======================================\n\n";
+			isWriteInProgress = true;
 			FileUtils.writeToFileAsync(logFile, log, onSuccessWrite, onErrorWrite);
 			
 			/*
@@ -87,11 +108,19 @@ package actionScripts.utils
 			*/
 			function onSuccessWrite():void
 			{
-				if (onSuccess != null) onSuccess();
+				updateQueueState();
 			}
 			function onErrorWrite(value:String):void
 			{
-				if (onFail != null) onFail(value);
+				// what to do with error value here, when
+				// log write has problem not sure where to log
+				// this error then, let's just proceed
+				updateQueueState();
+			}
+			function updateQueueState():void
+			{
+				isWriteInProgress = false;
+				flush();
 			}
 		}
 		

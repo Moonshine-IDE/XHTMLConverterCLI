@@ -2,6 +2,7 @@ package
 {
     import flash.desktop.NativeApplication;
     import flash.display.Sprite;
+    import flash.events.Event;
     import flash.events.InvokeEvent;
     import flash.filesystem.File;
     
@@ -38,6 +39,12 @@ package
 			function onSuccessLoggerRead():void
 			{
 				invokedFromDirectory = event.currentDirectory;
+				
+				ifPublishToPrimefacesSource = "C:/Users/Santanu/Desktop/NewVisualEditorProject/visualeditor-src/main/webapp/NewVisualEditorProject.xml";
+				ifPublishToPrimeFacesTarget = "C:/Users/Santanu/Desktop/NewVisualEditorProject/visualeditor-src/main/webapp/NewVisualEditorProject.xhtml";
+				initPublishRead();
+				return;
+				
 				readByInvokeArguments(event.arguments);
 			}
 		}
@@ -186,27 +193,15 @@ package
 		
 		private function saveLogAndQuit():void
 		{
-			logger.updateLog("Application has been closed.");
-			
-			// save the the log file
-			logger.saveLog(onSuccessWrite, onErrorWrite);
+			logger.addEventListener(Logger.LOG_QUEUE_COMPLETED, onLogQueueCompleted);
+			logger.updateLog("Application has been closed.\n======================================\n\n");
 			
 			/*
 			* @local
 			*/
-			function onSuccessWrite():void
+			function onLogQueueCompleted(event:Event):void
 			{
-				stage.nativeWindow.close();
-			}
-			function onErrorWrite(value:String):void
-			{
-				// ? should we simply quit 
-				// or re-try the process for how many times?
-				// @note - however failing to write to app storage 
-				// is very rare case, but on Windows 10 this
-				// may turn to error if the file is opened
-				// by user or some service already.
-				// for now - simply quit
+				event.target.removeEventListener(Logger.LOG_QUEUE_COMPLETED, onLogQueueCompleted);
 				stage.nativeWindow.close();
 			}
 		}
