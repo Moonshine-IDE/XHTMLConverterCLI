@@ -39,12 +39,6 @@ package
 			function onSuccessLoggerRead():void
 			{
 				invokedFromDirectory = event.currentDirectory;
-				
-				ifPublishToPrimefacesSource = "C:/Users/Santanu/Desktop/NewVisualEditorProject/visualeditor-src/main/webapp/NewVisualEditorProject.xml";
-				ifPublishToPrimeFacesTarget = "C:/Users/Santanu/Desktop/NewVisualEditorProject/visualeditor-src/main/webapp/NewVisualEditorProject.xhtml";
-				initPublishRead();
-				return;
-				
 				readByInvokeArguments(event.arguments);
 			}
 		}
