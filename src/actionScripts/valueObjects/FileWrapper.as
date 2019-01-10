@@ -2,26 +2,21 @@ package actionScripts.valueObjects
 {
 	import flash.filesystem.File;
 	
-	[Bindable] dynamic public class FileWrapper
+	[Bindable] public class FileWrapper
 	{
 		private var _file: File;
 		private var _children: Array = [];
 		
 		protected var _isRoot: Boolean;
-		protected var _shallUpdateChildren: Boolean;
 		
-		public function set shallUpdateChildren(value:Boolean):void {	_shallUpdateChildren = value;	}
-		public function get shallUpdateChildren():Boolean {	return _shallUpdateChildren;	}
-		
-		public function FileWrapper(file:File, isRoot:Boolean=false, shallUpdateChildren:Boolean=true)
+		public function FileWrapper(file:File, isRoot:Boolean=false)
 		{
 			_file = file;
 			_isRoot = isRoot;
-			_shallUpdateChildren = shallUpdateChildren;
 			
 			// store filelocation reference for later
 			// search through Find Resource menu option
-			if (_file && _shallUpdateChildren)
+			if (_file)
 			{
 				updateChildren();
 			}
@@ -46,7 +41,7 @@ package actionScripts.valueObjects
 				var currentDirectory:Object = directoryListing[i];
 				if (!currentDirectory.isHidden)
 				{
-					fw = new FileWrapper(new File(currentDirectory.nativePath), false, _shallUpdateChildren);
+					fw = new FileWrapper(new File(currentDirectory.nativePath), false);
 					_children.push(fw);
 				}
 			}
@@ -78,7 +73,7 @@ package actionScripts.valueObjects
 		
 		public function get children():Array
 		{
-			if (!_children && _shallUpdateChildren) updateChildren();
+			if (!_children) updateChildren();
 			
 			return _children;
 		}

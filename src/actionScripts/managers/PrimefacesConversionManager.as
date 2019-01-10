@@ -134,9 +134,6 @@ package actionScripts.managers
 			if (!value) return;
 			
 			var extension: String = value.file.extension;
-			var tmpReturnCount:int;
-			var tmpLineObject:Object;
-			
 			if ((value.children is Array) && (value.children as Array).length > 0) 
 			{
 				var tmpTotalChildrenCount:int = value.children.length;
