@@ -77,19 +77,17 @@ package actionScripts.managers
 		
 		private function initSingleFileConversion(source:File, onSuccessOrError:Function):void
 		{
-			var calculatedTarget:File;
-			if (!primefacesCommand.targetPrimefaces || primefacesCommand.targetPrimefaces.isDirectory)
+			var calculatedTarget:File = primefacesCommand.targetPrimefaces;
+			
+			// further calculation over target
+			if (!calculatedTarget || calculatedTarget.isDirectory)
 			{
 				var nameSplit:Array = source.name.split(".");
 				nameSplit.pop();
 				var targetXHTMLName:String = nameSplit.join(".") +".xhtml";
-				calculatedTarget = !primefacesCommand.targetPrimefaces ?
+				calculatedTarget = !calculatedTarget ?
 					source.parent.resolvePath(targetXHTMLName) :
-					primefacesCommand.targetPrimefaces.resolvePath(targetXHTMLName);
-			}
-			else
-			{
-				calculatedTarget = primefacesCommand.targetPrimefaces;
+					calculatedTarget.resolvePath(targetXHTMLName);
 			}
 			
 			var tmpConversion:PrimefacesConverter = new PrimefacesConverter(source, calculatedTarget, isOverwrite);
@@ -125,6 +123,12 @@ package actionScripts.managers
 		
 		private function initFolderConversion():void
 		{
+			// generate target directory if given and does not exists
+			if (primefacesCommand.targetPrimefaces && !primefacesCommand.targetPrimefaces.exists)
+			{
+				primefacesCommand.targetPrimefaces.createDirectory();
+			}
+			
 			var tmpWrapper:FileWrapper = new FileWrapper(primefacesCommand.sourcePrimefaces, true);
 			parseChildrens(tmpWrapper);
 		}

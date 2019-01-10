@@ -41,7 +41,12 @@ package
 			function onSuccessLoggerRead():void
 			{
 				invokedFromDirectory = event.currentDirectory;
-				parseArguments(event.arguments);
+				//parseArguments(event.arguments);
+				
+				ifPublishToPrimefacesArg = new PrimefacesCommand();
+				ifPublishToPrimefacesArg.sourcePrimefaces = new File("C:/Users/Santanu/Desktop/NewVisualEditorProject/visualeditor-src");
+				ifPublishToPrimefacesArg.targetPrimefaces = new File("C:/Users/Santanu/Desktop/NewVisualEditorProject/nonExistsFolder");
+				processAfterArguments();
 			}
 		}
 		
