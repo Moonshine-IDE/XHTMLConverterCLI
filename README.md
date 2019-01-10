@@ -3,7 +3,7 @@ Desktop application to convert nsf-xml file to PrimeFaces xHTML over CLI
 
 ## CLI Arguments
 Standard commands for both Unix and Windows platforms
-- `--publish-to-primefaces`: Followed by source .xml file path and destination .xhtml file path; Or, source directory path and (optional)destination directory path (if destination directory path not provided, xHTML file will generate mirroring the source directory structure)
+- `--publish-to-primefaces`: Followed by *source* .xml file path and *destination* .xhtml file path; Or, *source* directory path and (optional)*destination* directory path for bulk conversion including sub-directories. If *destination* directory path not provided, xHTML file will generate mirroring the *source* directory structure
 - `--overwrite`: Mark destination file (if already exists) to overwrite - default `false`
 
 ### Example On Windows
@@ -14,7 +14,7 @@ Sending command to convert nsf-xml to xhtml (use of double-quote is important to
 "c:\Program Files (x86)\XHTMLConverterCLI\XHTMLConverterCLI.exe" --publish-to-primefaces "path-to-source-nsf-file.xml" "path-to-destination-nsf-file.xhtml"
 ```
 
-**Directory Conversion (including sub-directories for bulk conversion):**
+**Directory Conversion:**
 ```
 "c:\Program Files (x86)\XHTMLConverterCLI\XHTMLConverterCLI.exe" --publish-to-primefaces "path-to-source-directory" [optional "path-to-destination-directory"]
 ```
@@ -31,7 +31,7 @@ An alternative option is as follows, this shall work as long as we keep the exec
 '\Applications\XHTMLConverterCLI.app\Contents\MacOS\XHTMLConverterCLI' --publish-to-primefaces 'path-to-source-nsf-file.xml' 'path-to-destination-nsf-file.xhtml'
 ```
 
-**Directory Conversion (including sub-directories for bulk conversion):**
+**Directory Conversion:**
 ```
 '\Applications\XHTMLConverterCLI.app\Contents\MacOS\XHTMLConverterCLI' --publish-to-primefaces 'path-to-source-directory' [optional 'path-to-destination-directory']
 ```
