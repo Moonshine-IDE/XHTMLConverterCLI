@@ -2,30 +2,32 @@ package
 {
     import flash.desktop.NativeApplication;
     import flash.display.Sprite;
+    import flash.events.ErrorEvent;
     import flash.events.Event;
     import flash.events.InvokeEvent;
+    import flash.events.UncaughtErrorEvent;
     import flash.filesystem.File;
     
+    import actionScripts.managers.PrimefacesConversionManager;
     import actionScripts.utils.FileUtils;
     import actionScripts.utils.Logger;
-    
-    import converter.Converter;
-    
-    import events.ConverterEvent;
+    import actionScripts.valueObjects.PrimefacesCommand;
     
     [SWF(frameRate=60, width=0, height=0, visible=false, showStatusBar=false)]
     public class XHTMLConverterCLI extends Sprite
 	{
-		private var isPublishToPrimefacesArg:Boolean;
-		private var ifPublishToPrimefacesSource:String;
-		private var ifPublishToPrimeFacesTarget:String;
+		private var ifPublishToPrimefacesArg:PrimefacesCommand;
 		private var invokedFromDirectory:File;
-		private var logger:Logger = new Logger();
+		private var isOverwrite:Boolean;
+		
+		private var logger:Logger = Logger.getInstance();
+		private var pfConversionManager:PrimefacesConversionManager;
 		
 		public function XHTMLConverterCLI()
 		{
 			super();
 			NativeApplication.nativeApplication.addEventListener(InvokeEvent.INVOKE, onInvokeEvent);
+			loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, uncaughtErrorHandler);
 		}
 		
 		private function onInvokeEvent(event:InvokeEvent):void
@@ -39,150 +41,94 @@ package
 			function onSuccessLoggerRead():void
 			{
 				invokedFromDirectory = event.currentDirectory;
-				readByInvokeArguments(event.arguments);
+				parseArguments(event.arguments);
 			}
 		}
 		
-		private function readByInvokeArguments(args:Array):void
+		private function parseArguments(args:Array):void
 		{
 			logger.generateTimeStamp();
 			logger.updateLog("Started from: "+ invokedFromDirectory.nativePath);
 			logger.updateLog("Arguments ("+ args.length +"):\n\n"+ args.join("\n") +"\n");
+			
+			var source:File;
+			var target:File;
+			var isDirectoryBased:Boolean;
 			
 			if (args.length != 0)
 			{
 				for (var i:int = 0; i < args.length; i++)
 				{
 					// parsing if publish-to-primefaces exists
-					if (!isPublishToPrimefacesArg && (args[i] == "--publish-to-primefaces"))
+					if (!ifPublishToPrimefacesArg && (args[i] == "--publish-to-primefaces"))
 					{
-						// next two parameters must be supplying
-						// values against 'publish-to-primefaces'
-						if ((i + 2) < args.length)
+						// next parameter can be a file or directory path
+						if ((i + 1) < args.length)
 						{
-							isPublishToPrimefacesArg = true;
-							ifPublishToPrimefacesSource = args[i+1];
-							ifPublishToPrimeFacesTarget = args[i+2];
+							source = FileUtils.convertIfRelativeToAbsolute(args[i+1], invokedFromDirectory);
+							if (source) 
+							{
+								ifPublishToPrimefacesArg = new PrimefacesCommand();
+								ifPublishToPrimefacesArg.sourcePrimefaces = source; 
+							}
+							
+							// try to validate if an optional target
+							// path also provided
+							if (source && ((i + 2) < args.length) && (args[i+2].indexOf("--") == -1))
+							{
+								ifPublishToPrimefacesArg.targetPrimefaces = FileUtils.convertIfRelativeToAbsolute(args[i+2], invokedFromDirectory);
+							}
+							// if file based but no target has provided
+							if (source && !source.isDirectory && !target)
+							{
+								ifPublishToPrimefacesArg = null;
+							}
 						}
 					}
 					
-					// parse any other arguments if requires
-					// down this place
+					// parse if requires overwrite
+					if (args[i] == "--overwrite") isOverwrite = true;
 				}
 			}
 			else
 			{
 				// if no argument present, saveLogAndQuit
-				exitWithReason("No Arguments Found", Logger.TYPE_WARNING);
+				throw new Error("No Arguments Found");
 			}
 			
+			processAfterArguments();
+		}
+		
+		private function processAfterArguments():void
+		{
 			// --publish-to-primefaces
-			if (isPublishToPrimefacesArg)
+			if (ifPublishToPrimefacesArg)
 			{
-				initPublishRead();
+				pfConversionManager = new PrimefacesConversionManager(invokedFromDirectory, isOverwrite);
+				pfConversionManager.primefacesCommand = ifPublishToPrimefacesArg;
+				pfConversionManager.addEventListener(PrimefacesConversionManager.CONVERSIONS_COMPLETED, onPFConversionProcessReachEnd);
+				pfConversionManager.addEventListener(PrimefacesConversionManager.CONVERSIONS_FAILED, onPFConversionProcessReachEnd);
+				pfConversionManager.initPrimefacesConversion();
 			}
 			else
 			{
-				exitWithReason("Missing parameters. Expected path details not found: --publish-to-primefaces\n", Logger.TYPE_WARNING);
+				throw new Error("Missing parameters. Expected path details not found: --publish-to-primefaces\n");
 			}
 		}
 		
-		private function initPublishRead():void
+		private function onPFConversionProcessReachEnd(event:Event):void
 		{
-			var fromFile:File = convertIfRelativeToAbsolute(ifPublishToPrimefacesSource);
-			if (!fromFile) return;
+			pfConversionManager.removeEventListener(PrimefacesConversionManager.CONVERSIONS_COMPLETED, onPFConversionProcessReachEnd);
+			pfConversionManager.removeEventListener(PrimefacesConversionManager.CONVERSIONS_FAILED, onPFConversionProcessReachEnd);
 			
-			if (fromFile.exists)
-			{
-				logger.updateLog("Source file read starts at: "+ ifPublishToPrimefacesSource);
-				FileUtils.readFromFileAsync(fromFile, FileUtils.DATA_FORMAT_STRING, onSuccessRead, onErrorRead);
-			}
-			else
-			{
-				exitWithReason("Source file does not exists at: "+ ifPublishToPrimefacesSource, Logger.TYPE_ERROR);
-			}
-			
-			/*
-			* @local
-			*/
-			function onSuccessRead(value:Object):void
-			{
-				if (value) 
-				{
-					logger.updateLog("Source file read succeed.\n");
-					try
-					{
-						sendForConversion(new XML(value));
-					} catch (e:Error)
-					{
-						exitWithReason("Error while XML conversion: "+ e.getStackTrace(), Logger.TYPE_ERROR);
-					}
-				}
-				else 
-				{
-					exitWithReason("Source file returned invalid data at: "+ ifPublishToPrimefacesSource, Logger.TYPE_ERROR);
-				}
-			}
-			function onErrorRead(value:String):void
-			{
-				exitWithReason("Error reading source file at: "+ ifPublishToPrimefacesSource +"\n"+ value +"\n", Logger.TYPE_ERROR);
-			}
-		}
-		
-		private function sendForConversion(value:XML):void
-		{
-			logger.updateLog("Starting the conversion..");
-			Converter.getInstance().addEventListener(ConverterEvent.CONVERSION_COMPLETED, onConversionCompleted);
-			Converter.getInstance().addEventListener(ConverterEvent.UNKNOWN_CONVERSION_ITEM, onUnknownConversionItem);
-			Converter.getInstance().fromXMLOnly(value);
-		}
-		
-		private function onConversionCompleted(event:ConverterEvent):void
-		{
-			logger.updateLog("Conversion completed successfully");
-			Converter.getInstance().removeEventListener(ConverterEvent.CONVERSION_COMPLETED, onConversionCompleted);
-			Converter.getInstance().removeEventListener(ConverterEvent.UNKNOWN_CONVERSION_ITEM, onUnknownConversionItem);
-			
-			if (event.xHtmlOutput)
-			{
-				publishReadToPrimefaces(event.xHtmlOutput);
-			}
-			else
-			{
-				exitWithReason("Empty conversion data\n", Logger.TYPE_WARNING);
-			}
-		}
-		
-		private function onUnknownConversionItem(event:ConverterEvent):void
-		{
-			logger.updateLog("Unknown conversion item: " + event.itemName);	
-		}
-		
-		private function publishReadToPrimefaces(value:Object):void
-		{
-			var toFile:File = convertIfRelativeToAbsolute(ifPublishToPrimeFacesTarget);
-			if (!toFile) return;
-			
-			logger.updateLog("Saving results of conversion to: "+ ifPublishToPrimeFacesTarget);
-			FileUtils.writeToFileAsync(toFile, value, onSuccessWrite, onErrorWrite);
-			
-			/*
-			* @local
-			*/
-			function onSuccessWrite():void
-			{
-				// @note
-				// Unfortunately, even the invoke event do fire 
-				// multiple times when an application is already open,
-				// its argument array do not re-generates except in
-				// the first time; thus, let close it and re-open the
-				// app again
-				exitWithReason("Save file completes at: "+ ifPublishToPrimeFacesTarget, Logger.TYPE_INFO);
-			}
-			function onErrorWrite(value:String):void
-			{
-				exitWithReason("Error while file saving at: "+ ifPublishToPrimeFacesTarget +"\n"+ value, Logger.TYPE_ERROR);
-			}
+			// Unfortunately, even the invoke event do fire 
+			// multiple times when an application is already open,
+			// its argument array do not re-generates except in
+			// the first time; thus, let close it and re-open the
+			// app again
+			exitWithReason("Saving file(s) completed at: "+ 
+				(pfConversionManager.primefacesCommand.targetPrimefaces ? pfConversionManager.primefacesCommand.targetPrimefaces.nativePath : pfConversionManager.primefacesCommand.sourcePrimefaces.nativePath),
+				Logger.TYPE_INFO);
 		}
 		
 		private function saveLogAndQuit():void
@@ -200,48 +146,31 @@ package
 			}
 		}
 		
+		private function uncaughtErrorHandler(event:UncaughtErrorEvent):void
+		{
+			var errorString:String;
+			if (event.error is Error)
+			{
+				errorString = (event.error as Error).message;
+			}
+			else if (event.error is ErrorEvent)
+			{
+				errorString = (event.error as ErrorEvent).text +"\n"+ (event.error as Error).getStackTrace();
+			}
+			else
+			{
+				// a non-Error, non-ErrorEvent type was thrown and uncaught
+				errorString = event.toString();
+			}
+			
+			// finally
+			exitWithReason(errorString, Logger.TYPE_ERROR);
+		}
+		
 		private function exitWithReason(reason:String, type:String):void
 		{
 			logger.updateLog(reason, type);
 			saveLogAndQuit();
-		}
-		
-		private function convertIfRelativeToAbsolute(path:String):File
-		{
-			var tmpFile:File;
-			if (FileUtils.isRelativePath(path))
-			{
-				try
-				{
-					// convert to abolute path to use with File API
-					tmpFile = invokedFromDirectory.resolvePath(path);
-					return tmpFile;
-				}
-				catch (e:Error)
-				{
-					// if any bad data to treat as File
-					exitWithReason("Unable to validate as file path: "+ path, Logger.TYPE_ERROR);
-					return null;
-				}
-			}
-			
-			return convertToFile(path);
-		}
-		
-		private function convertToFile(path:String):File
-		{
-			try
-			{
-				var tmpFile:File = new File(path);
-				return tmpFile;
-			}
-			catch (e:Error)
-			{
-				// if any bad data to treat as File
-				exitWithReason("Unable to validate as file path: "+ path, Logger.TYPE_ERROR);
-			}
-			
-			return null;
 		}
     }
 }

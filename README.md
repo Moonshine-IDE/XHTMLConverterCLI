@@ -3,18 +3,26 @@ Desktop application to convert nsf-xml file to PrimeFaces xHTML over CLI
 
 ## CLI Arguments
 Standard commands for both Unix and Windows platforms
-- `--publish-to-primefaces`: Followed by source .xml file path and destination .xhtml file path
+- `--publish-to-primefaces`: Followed by source .xml file path and destination .xhtml file path; Or, source directory path and (optional)destination directory path (if destination directory path not provided, xHTML file will generate mirroring the source directory structure)
+- `--overwrite`: Mark destination file (if already exists) to overwrite - default `false`
 
 ### Example On Windows
 Sending command to convert nsf-xml to xhtml (use of double-quote is important to the platform)
 
+**Single File Conversion:**
 ```
 "c:\Program Files (x86)\XHTMLConverterCLI\XHTMLConverterCLI.exe" --publish-to-primefaces "path-to-source-nsf-file.xml" "path-to-destination-nsf-file.xhtml"
+```
+
+**Directory Conversion (including sub-directories for bulk conversion):**
+```
+"c:\Program Files (x86)\XHTMLConverterCLI\XHTMLConverterCLI.exe" --publish-to-primefaces "path-to-source-directory" [optional "path-to-destination-directory"]
 ```
 
 ### Example On Unix
 Sending command to convert nsf-xml to xhtml
 
+**Single File Conversion:**
 ```
 open -a '\Applications\XHTMLConverterCLI.app' --args --publish-to-primefaces 'path-to-source-nsf-file.xml' 'path-to-destination-nsf-file.xhtml'
 ```
@@ -23,8 +31,13 @@ An alternative option is as follows, this shall work as long as we keep the exec
 '\Applications\XHTMLConverterCLI.app\Contents\MacOS\XHTMLConverterCLI' --publish-to-primefaces 'path-to-source-nsf-file.xml' 'path-to-destination-nsf-file.xhtml'
 ```
 
+**Directory Conversion (including sub-directories for bulk conversion):**
+```
+'\Applications\XHTMLConverterCLI.app\Contents\MacOS\XHTMLConverterCLI' --publish-to-primefaces 'path-to-source-directory' [optional 'path-to-destination-directory']
+```
+
 #### Log
-Log file generates against current conversion job to following place:
+Log file generates by current date/job to following place:
 
 **Windows:**
 ```

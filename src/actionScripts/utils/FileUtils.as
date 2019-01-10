@@ -182,5 +182,53 @@ package actionScripts.utils
 			// almost everything else
 			return true;
 		}
+		
+		/**
+		 * Returns and validate an absolute or
+		 * relative file system path
+		 * @required
+		 * path: String
+		 * @optional
+		 * relativeFromPath: File
+		 * @return
+		 * File
+		 */
+		public static function convertIfRelativeToAbsolute(path:String, relativeFromPath:File=null):File
+		{
+			var tmpFile:File;
+			if (FileUtils.isRelativePath(path) && relativeFromPath)
+			{
+				try
+				{
+					// convert to abolute path to use with File API
+					tmpFile = relativeFromPath.resolvePath(path);
+					return tmpFile;
+				}
+				catch (e:Error)
+				{
+					// if any bad data to treat as File
+					throw new Error("Unable to validate as file path: "+ path);
+					return null;
+				}
+			}
+			
+			return convertToFile(path);
+		}
+		
+		private static function convertToFile(path:String):File
+		{
+			try
+			{
+				var tmpFile:File = new File(path);
+				return tmpFile;
+			}
+			catch (e:Error)
+			{
+				// if any bad data to treat as File
+				throw new Error("Unable to validate as file path: "+ path);
+			}
+			
+			return null;
+		}
 	}
 }

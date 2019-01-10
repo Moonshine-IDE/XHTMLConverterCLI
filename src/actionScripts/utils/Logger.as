@@ -15,6 +15,7 @@ package actionScripts.utils
 		public static const TYPE_INFO:String = "info";
 		
 		private static const LOG_EXTENSION:String = ".txt";
+		private static var instance:Logger;
 		
 		private var logTitle:String;
 		private var logFile:File;
@@ -24,7 +25,18 @@ package actionScripts.utils
 		private var updateQueue:Array = [];
 		private var isWriteInProgress:Boolean;
 		
-		public function Logger()
+		public static function getInstance():Logger 
+		{	
+			if (!instance) 
+			{
+				instance = new Logger();
+				instance.initialize();
+			}
+			
+			return instance;
+		}
+		
+		private function initialize():void
 		{
 			conversionDate = new Date();
 			var timeStamp:String = getDateTimeStamp(conversionDate, "MM_dd_yyyy");
