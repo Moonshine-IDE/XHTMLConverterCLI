@@ -29,7 +29,7 @@ package actionScripts.managers
 			this.isOverwrite = isOverwrite;
 		}
 		
-		public function initPrimefacesConversion():void
+		public function startConversion():void
 		{
 			// in case of directory source having
 			// having folder or sub-folders

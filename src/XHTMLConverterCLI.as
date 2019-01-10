@@ -108,7 +108,7 @@ package
 				pfConversionManager.primefacesCommand = ifPublishToPrimefacesArg;
 				pfConversionManager.addEventListener(PrimefacesConversionManager.CONVERSIONS_COMPLETED, onPFConversionProcessReachEnd);
 				pfConversionManager.addEventListener(PrimefacesConversionManager.CONVERSIONS_FAILED, onPFConversionProcessReachEnd);
-				pfConversionManager.initPrimefacesConversion();
+				pfConversionManager.startConversion();
 			}
 			else
 			{
