@@ -124,9 +124,18 @@ package actionScripts.managers
 		private function initFolderConversion():void
 		{
 			// generate target directory if given and does not exists
-			if (primefacesCommand.targetPrimefaces && !primefacesCommand.targetPrimefaces.exists)
+			if (primefacesCommand.targetPrimefaces && 
+				(!primefacesCommand.targetPrimefaces.exists || !primefacesCommand.targetPrimefaces.isDirectory))
 			{
-				primefacesCommand.targetPrimefaces.createDirectory();
+				try
+				{
+					primefacesCommand.targetPrimefaces.createDirectory();
+				}
+				catch (e:Error)
+				{
+					throw new Error("Unable to create target directory: "+ primefacesCommand.targetPrimefaces.nativePath +"\n"+ e.getStackTrace());
+					return;
+				}
 			}
 			
 			var tmpWrapper:FileWrapper = new FileWrapper(primefacesCommand.sourcePrimefaces, true);
