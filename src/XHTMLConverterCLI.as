@@ -52,7 +52,6 @@ package
 			logger.update("Arguments ("+ args.length +"):\n\n"+ args.join("\n") +"\n");
 			
 			var source:File;
-			var target:File;
 			var isDirectoryBased:Boolean;
 			
 			if (args.length != 0)
@@ -79,7 +78,7 @@ package
 								ifPublishToPrimefacesArg.targetPrimefaces = FileUtils.convertIfRelativeToAbsolute(args[i+2], invokedFromDirectory);
 							}
 							// if file based but no target has provided
-							if (source && !source.isDirectory && !target)
+							if (source && !source.isDirectory && !ifPublishToPrimefacesArg.targetPrimefaces)
 							{
 								ifPublishToPrimefacesArg = null;
 							}
