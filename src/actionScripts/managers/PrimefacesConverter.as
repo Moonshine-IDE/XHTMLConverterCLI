@@ -26,14 +26,14 @@ package actionScripts.managers
 			this.target = target;
 			this.isOverwrite = isOverwrite;
 			
-			initPublishRead();
+			start();
 		}
 		
-		private function initPublishRead():void
+		private function start():void
 		{
 			if (source.exists)
 			{
-				logger.updateLog("Source file read starts at: "+ source.nativePath);
+				logger.update("Source file read starts at: "+ source.nativePath);
 				FileUtils.readFromFileAsync(source, FileUtils.DATA_FORMAT_STRING, onSuccessRead, onErrorRead);
 			}
 			else
@@ -48,10 +48,10 @@ package actionScripts.managers
 			{
 				if (value) 
 				{
-					logger.updateLog("Source file read succeed.\n");
+					logger.update("Source file read succeed.\n");
 					try
 					{
-						sendForConversion(new XML(value));
+						convert(new XML(value));
 					} catch (e:Error)
 					{
 						sendError("Error while XML conversion: "+ e.getStackTrace());
@@ -68,9 +68,9 @@ package actionScripts.managers
 			}
 		}
 		
-		private function sendForConversion(value:XML):void
+		private function convert(value:XML):void
 		{
-			logger.updateLog("Starting the conversion..");
+			logger.update("Starting the conversion..");
 			Converter.getInstance().addEventListener(ConverterEvent.CONVERSION_COMPLETED, onConversionCompleted);
 			Converter.getInstance().addEventListener(ConverterEvent.UNKNOWN_CONVERSION_ITEM, onUnknownConversionItem);
 			Converter.getInstance().fromXMLOnly(value);
@@ -78,13 +78,13 @@ package actionScripts.managers
 		
 		private function onConversionCompleted(event:ConverterEvent):void
 		{
-			logger.updateLog("Conversion completed successfully");
+			logger.update("Conversion completed successfully");
 			Converter.getInstance().removeEventListener(ConverterEvent.CONVERSION_COMPLETED, onConversionCompleted);
 			Converter.getInstance().removeEventListener(ConverterEvent.UNKNOWN_CONVERSION_ITEM, onUnknownConversionItem);
 			
 			if (event.xHtmlOutput)
 			{
-				publishReadToPrimefaces(event.xHtmlOutput);
+				publish(event.xHtmlOutput);
 			}
 			else
 			{
@@ -94,10 +94,10 @@ package actionScripts.managers
 		
 		private function onUnknownConversionItem(event:ConverterEvent):void
 		{
-			logger.updateLog("Unknown conversion item: " + event.itemName);	
+			logger.update("Unknown conversion item: " + event.itemName);	
 		}
 		
-		private function publishReadToPrimefaces(value:Object):void
+		private function publish(value:Object):void
 		{
 			if (target.exists && !isOverwrite)
 			{
@@ -105,7 +105,7 @@ package actionScripts.managers
 			}
 			else
 			{
-				logger.updateLog("Saving results of conversion to: "+ target.nativePath);
+				logger.update("Saving results of conversion to: "+ target.nativePath);
 				FileUtils.writeToFileAsync(target, value, onSuccessWrite, onErrorWrite);
 			}
 			

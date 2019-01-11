@@ -46,16 +46,16 @@ package actionScripts.utils
 		public function generateTimeStamp():void
 		{
 			var timeStamp:String = getDateTimeStamp(conversionDate, "MM/dd/yyyy hh:kk:SSS A");
-			updateLog("Conversion started: "+ timeStamp);
+			update("Conversion started: "+ timeStamp);
 		}
 		
-		public function updateLog(message:String, type:String=TYPE_INFO):void
+		public function update(message:String, type:String=TYPE_INFO):void
 		{
 			updateQueue.push("["+ type +"] "+ message +"\n");
 			flush();
 		}
 		
-		public function initLogger(onSuccess:Function):void
+		public function checkPrevious(onSuccess:Function):void
 		{
 			logFile = File.applicationStorageDirectory.resolvePath(logTitle + LOG_EXTENSION);
 			if (logFile.exists) FileUtils.readFromFileAsync(logFile, FileUtils.DATA_FORMAT_STRING, onSuccessRead, onErrorRead);
@@ -86,7 +86,7 @@ package actionScripts.utils
 					// try to read by new numbered file again
 					// so we will updae everything to this file now
 					fileNameIncreamentalCount++;
-					initLogger(onSuccess);
+					checkPrevious(onSuccess);
 				}
 				else
 				{
@@ -105,11 +105,11 @@ package actionScripts.utils
 			else 
 			{
 				log += updateQueue.shift();
-				saveLog();
+				save();
 			}
 		}
 		
-		private function saveLog():void
+		private function save():void
 		{
 			// save the the log file
 			isWriteInProgress = true;

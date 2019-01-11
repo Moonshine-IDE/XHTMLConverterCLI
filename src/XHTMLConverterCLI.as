@@ -33,12 +33,12 @@ package
 		private function onInvokeEvent(event:InvokeEvent):void
 		{
 			NativeApplication.nativeApplication.removeEventListener(InvokeEvent.INVOKE, onInvokeEvent);
-			logger.initLogger(onSuccessLoggerRead);
+			logger.checkPrevious(onPreviousChecked);
 			
 			/*
 			 * @local
 			 */
-			function onSuccessLoggerRead():void
+			function onPreviousChecked():void
 			{
 				invokedFromDirectory = event.currentDirectory;
 				parseArguments(event.arguments);
@@ -48,8 +48,8 @@ package
 		private function parseArguments(args:Array):void
 		{
 			logger.generateTimeStamp();
-			logger.updateLog("Started from: "+ invokedFromDirectory.nativePath);
-			logger.updateLog("Arguments ("+ args.length +"):\n\n"+ args.join("\n") +"\n");
+			logger.update("Started from: "+ invokedFromDirectory.nativePath);
+			logger.update("Arguments ("+ args.length +"):\n\n"+ args.join("\n") +"\n");
 			
 			var source:File;
 			var target:File;
@@ -108,7 +108,7 @@ package
 				pfConversionManager.primefacesCommand = ifPublishToPrimefacesArg;
 				pfConversionManager.addEventListener(PrimefacesConversionManager.CONVERSIONS_COMPLETED, onPFConversionProcessReachEnd);
 				pfConversionManager.addEventListener(PrimefacesConversionManager.CONVERSIONS_FAILED, onPFConversionProcessReachEnd);
-				pfConversionManager.startConversion();
+				pfConversionManager.start();
 			}
 			else
 			{
@@ -134,7 +134,7 @@ package
 		private function saveLogAndQuit():void
 		{
 			logger.addEventListener(Logger.LOG_QUEUE_COMPLETED, onLogQueueCompleted);
-			logger.updateLog("Application has been closed.\n======================================\n\n");
+			logger.update("Application has been closed.\n======================================\n\n");
 			
 			/*
 			* @local
@@ -169,7 +169,7 @@ package
 		
 		private function exitWithReason(reason:String, type:String):void
 		{
-			logger.updateLog(reason, type);
+			logger.update(reason, type);
 			saveLogAndQuit();
 		}
     }

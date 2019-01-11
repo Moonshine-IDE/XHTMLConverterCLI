@@ -29,7 +29,7 @@ package actionScripts.managers
 			this.isOverwrite = isOverwrite;
 		}
 		
-		public function startConversion():void
+		public function start():void
 		{
 			// in case of directory source having
 			// having folder or sub-folders
@@ -49,7 +49,7 @@ package actionScripts.managers
 		{
 			if (pendingQueue.length != 0)
 			{
-				initSingleFileConversion(pendingQueue[0], onSuccessOrError);
+				startSingleFileConversion(pendingQueue[0], onSuccessOrError);
 				pendingQueue.shift();
 			}
 			else
@@ -70,12 +70,12 @@ package actionScripts.managers
 					return;
 				}
 				
-				logger.updateLog(message, isSuccess ? Logger.TYPE_INFO : Logger.TYPE_ERROR);
+				logger.update(message, isSuccess ? Logger.TYPE_INFO : Logger.TYPE_ERROR);
 				flush();
 			}
 		}
 		
-		private function initSingleFileConversion(source:File, onSuccessOrError:Function):void
+		private function startSingleFileConversion(source:File, onSuccessOrError:Function):void
 		{
 			var calculatedTarget:File = primefacesCommand.targetPrimefaces;
 			
@@ -87,7 +87,7 @@ package actionScripts.managers
 				var targetXHTMLName:String = nameSplit.join(".") +".xhtml";
 				calculatedTarget = !calculatedTarget ?
 					source.parent.resolvePath(targetXHTMLName) :
-					calculatedTarget.resolvePath(targetXHTMLName);
+					getMirroredPath(primefacesCommand.sourcePrimefaces, source, calculatedTarget, targetXHTMLName);
 			}
 			
 			var tmpConversion:PrimefacesConverter = new PrimefacesConverter(source, calculatedTarget, isOverwrite);
@@ -186,6 +186,15 @@ package actionScripts.managers
 			{
 				this.flush();
 			}
+		}
+		
+		private function getMirroredPath(by:File, forPath:File, to:File, name:String):File
+		{
+			var subPath:String = forPath.parent.nativePath.replace(by.nativePath, "");
+			// this requires to be in a separate check
+			if (subPath.charAt(0) == File.separator) subPath = subPath.replace(File.separator, "");
+			subPath += (subPath == "") ? name : File.separator + name;
+			return (to.resolvePath(subPath));
 		}
 	}
 }
