@@ -138,7 +138,7 @@ package actionScripts.managers
 				}
 			}
 			
-			var tmpWrapper:FileWrapper = new FileWrapper(primefacesCommand.sourcePrimefaces);
+			var tmpWrapper:FileWrapper = new FileWrapper(primefacesCommand.sourcePrimefaces, true);
 			parseChildrens(tmpWrapper);
 		}
 		
