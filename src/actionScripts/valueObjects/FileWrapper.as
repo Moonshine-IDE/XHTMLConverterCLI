@@ -7,12 +7,9 @@ package actionScripts.valueObjects
 		private var _file: File;
 		private var _children: Array = [];
 		
-		protected var _isRoot: Boolean;
-		
-		public function FileWrapper(file:File, isRoot:Boolean=false)
+		public function FileWrapper(file:File)
 		{
 			_file = file;
-			_isRoot = isRoot;
 			
 			// store filelocation reference for later
 			// search through Find Resource menu option
@@ -41,7 +38,7 @@ package actionScripts.valueObjects
 				var currentDirectory:Object = directoryListing[i];
 				if (!currentDirectory.isHidden)
 				{
-					fw = new FileWrapper(new File(currentDirectory.nativePath), false);
+					fw = new FileWrapper(new File(currentDirectory.nativePath));
 					_children.push(fw);
 				}
 			}
@@ -60,15 +57,6 @@ package actionScripts.valueObjects
 		public function set file(v:File):void
 		{
 			_file = v;
-		}
-		
-		public function get isRoot():Boolean
-		{
-			return _isRoot;
-		}
-		public function set isRoot(value:Boolean):void
-		{
-			_isRoot = value;
 		}
 		
 		public function get children():Array
