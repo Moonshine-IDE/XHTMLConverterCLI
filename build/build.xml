@@ -21,18 +21,38 @@
 	<property name="keepDebugFiles" value="${APP_PROPERTIES.keepDebugFiles}" />
 	<property name="deploy_dir" value="DEPLOY"/>
 	<property name="debug_dir" value="bin-debug"/>
-
-	<property name="IsDevelopmentBuild" value="${APP_PROPERTIES.isDevelopmentVersion}"/>
-	<property name="BuildVersion" value="${APP_PROPERTIES.buildVersion}"/>
-	<property name="Is.Signed.Build" value="${APP_PROPERTIES.isSignedBuild}"/>
-	<property name="certSignedWindowsBinary" value="${APP_PROPERTIES.certSignedWindowsBinary}" />
-	<property name="certSignedWindowsBinaryPassword" value="${APP_PROPERTIES.certSignedWindowsBinaryPass}" />
-	<property name="certSignedDevIDKeychainName" value="${APP_PROPERTIES.certSignedDevIDKeychainName}" />
-	<property name="certSignedMacOSKeychainName" value="${APP_PROPERTIES.certSignedMacOSKeychainName}" />
-	<property name="certSignedMacOSKeychainInstallerName" value="${APP_PROPERTIES.certSignedMacOSKeychainInstallerName}" />
-	<property name="certSignedMacOSKeychainPass" value="${APP_PROPERTIES.certSignedMacOSKeychainPass}" />
-	<property name="svn.revision" value="3913"/>
 	
+	<if>
+		<!-- This expected value means its not running on Bamboo -->
+		<equals arg1="${IS_SIGNED_BUILD}" arg2="IS_SIGNED_BUILD"/>
+		<then>
+			<echo>Reading properties from local ApplicationProperties</echo>
+			<property name="IsDevelopmentBuild" value="${APP_PROPERTIES.isDevelopmentVersion}"/>
+			<property name="BuildVersion" value="${APP_PROPERTIES.buildVersion}"/>
+			<property name="Is.Signed.Build" value="${APP_PROPERTIES.isSignedBuild}"/>
+			<property name="certSignedWindowsBinary" value="${APP_PROPERTIES.certSignedWindowsBinary}" />
+			<property name="certSignedWindowsBinaryPassword" value="${APP_PROPERTIES.certSignedWindowsBinaryPass}" />
+			<property name="certSignedDevIDKeychainName" value="${APP_PROPERTIES.certSignedDevIDKeychainName}" />
+			<property name="certSignedMacOSKeychainName" value="${APP_PROPERTIES.certSignedMacOSKeychainName}" />
+			<property name="certSignedMacOSKeychainInstallerName" value="${APP_PROPERTIES.certSignedMacOSKeychainInstallerName}" />
+			<property name="certSignedMacOSKeychainPass" value="${APP_PROPERTIES.certSignedMacOSKeychainPass}" />
+			<property name="svn.revision" value="0000"/>
+		</then>
+		<else>
+			<echo>Reading properties from Bamboo Variables</echo>
+			<property name="IsDevelopmentBuild" value="${IS_DEVELOPMENT_VERSION}"/>
+			<property name="BuildVersion" value="${BUILD_VERSION}"/>
+			<property name="Is.Signed.Build" value="${IS_SIGNED_BUILD}"/>
+			<property name="certSignedWindowsBinary" value="${CERT_WIN_INSTALLER}" />
+			<property name="certSignedWindowsBinaryPassword" value="${CERT_WIN_INSTALLER_PASSWORD}" />
+			<property name="certSignedDevIDKeychainName" value="${CERT_DEV_ID_KEYCHAIN}" />
+			<property name="certSignedMacOSKeychainName" value="${CERT_OSX_KEYCHAIN}" />
+			<property name="certSignedMacOSKeychainInstallerName" value="${CERT_OSX_KEYCHAIN_INSTALLER}" />
+			<property name="certSignedMacOSKeychainPass" value="${CERT_OSX_KEYCHAIN_PASS}" />
+			<property name="svn.revision" value="${svn.revision}"/>
+		</else>
+	</if>
+
 	<echo>OS BIT : ${os.arch}</echo>
 	<if>
 		<os family="windows"/>
