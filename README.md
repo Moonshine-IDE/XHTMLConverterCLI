@@ -1,5 +1,5 @@
 # XHTMLConverterCLI
-Desktop application to convert nsf-xml file to PrimeFaces xHTML over CLI
+Desktop application to convert (Moonshine)Visual Editor XML file to PrimeFaces xHTML using a CLI by using the common [VisualEditorConverterLib](https://github.com/prominic/VisualEditorConverterLib) also used by [Moonshine IDE](https://github.com/prominic/Moonshine-IDE)
 
 ## CLI Arguments
 Standard commands for both Unix and Windows platforms
