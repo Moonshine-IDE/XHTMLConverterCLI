@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- moonshine-dependencies.xml
+This file defines dependencies of the Moonshine-IDE project.  Moonshine will
+display a list this list after checking out the Moonshine-IDE repository, to
+facilitate the initial setup of the project.
+-->
+<root>
+    <!-- 
+    The label for the dependency list as it should appear in the Repository Manager Interface.
+    -->
+    <label>XHTMLConverterCLI Dependencies</label>
+    <!-- A longer description of the purpose of this dependency list -->
+    <description>All other repositories required to build XHTMLConverterCLI</description>
+    <!-- The list of dependencies for the project.  These should be listed in the order that they should be displayed in the interface. -->
+    <dependencies>
+        <dependency>
+            <!-- The label of this dependency as it should appear in the dependency list -->
+            <label>Dependency:  Visual-Editor-Converter-Library</label>
+            <!-- The type of the repository.  "git" or "svn" -->
+            <repo-type>git</repo-type>
+            <!-- The URL of the repository -->
+            <url>https://github.com/prominic/VisualEditorConverterLib</url>
+            <!-- A longer description of the dependency -->
+            <description>Required for the shared XML conversion logic.</description>
+        </dependency>
+    </dependencies>
+</root>
+
