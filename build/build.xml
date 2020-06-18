@@ -177,7 +177,7 @@
 			<arg line="-storetype pkcs12" />
 			<arg line="-keystore '${debug_dir}/${certSelfSigned}'" />
 	   		<arg line="-storepass '${certSelfSignedPassword}'" />
-			<arg line="-tsa 'http://timestamp.comodoca.com/rfc3161'" />
+			<arg line="-tsa 'http://timestamp.entrust.net/TSS/RFC3161sha2TS'" />
 	   		<arg line="-target native"/>
 	   		<arg line="-storetype pkcs12" />
 	   		<arg line="-keystore '${certSignedWindowsBinary}'" />
@@ -202,7 +202,7 @@
 			<arg line="-storetype pkcs12" />
 			<arg line="-keystore '${debug_dir}/${certSelfSigned}'" />
 	   		<arg line="-storepass '${certSelfSignedPassword}'" />
-			<arg line="-tsa 'http://timestamp.comodoca.com/rfc3161'" />
+			<arg line="-tsa 'http://timestamp.entrust.net/TSS/RFC3161sha2TS'" />
 	   		<arg line="-target native"/>
 	   		<arg line="${desktopBinaryFilename}" />
 	   		<arg line="'${desktopApplicationDescriptor}'" />
@@ -227,7 +227,7 @@
 			<arg line="-storetype pkcs12" />
 			<arg line="-keystore '${certSelfSigned}'" />
 			<arg line="-storepass '${certSelfSignedPassword}'" />
-			<arg line="-tsa 'http://timestamp.comodoca.com/rfc3161'" />
+			<arg line="-tsa 'http://timestamp.entrust.net/TSS/RFC3161sha2TS'" />
 			<arg line="-target bundle"/>
 			<arg line="'${desktopBinaryFilename}'" />
 			<arg line="'${desktopApplicationDescriptor}'" />
