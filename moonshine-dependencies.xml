@@ -19,7 +19,7 @@ facilitate the initial setup of the project.
             <!-- The type of the repository.  "git" or "svn" -->
             <repo-type>git</repo-type>
             <!-- The URL of the repository -->
-            <url>https://github.com/prominic/VisualEditorConverterLib</url>
+            <url>https://github.com/Moonshine-IDE/VisualEditorConverterLib</url>
             <!-- A longer description of the dependency -->
             <description>Required for the shared XML conversion logic.</description>
         </dependency>
